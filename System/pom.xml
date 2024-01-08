@@ -1,0 +1,30 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+  		<groupId>com.progartisan.module</groupId>
+        <artifactId>MyModules</artifactId>
+        <version>${revision}</version>
+        <relativePath/>
+  </parent>
+  <artifactId>System</artifactId>
+  
+  <properties>
+  		<revision>0.3-SNAPSHOT</revision>
+   </properties>
+  
+  <dependencies>
+	  <dependency>
+            <groupId>com.progartisan.component</groupId>
+            <artifactId>Interface</artifactId>
+			<version>0.3-SNAPSHOT</version>
+	  </dependency>
+  	<!-- TODO only used for log layout -->
+  	<dependency>
+      <groupId>org.apache.skywalking</groupId>
+      <artifactId>apm-toolkit-logback-1.x</artifactId>
+      <version>8.11.0</version>
+      <scope>runtime</scope>
+    </dependency>
+    
+  </dependencies>
+</project>

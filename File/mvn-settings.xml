@@ -1,0 +1,50 @@
+<settings xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+<mirrors>
+    <mirror>
+        <id>alimaven</id>
+        <name>aliyun maven</name>
+        <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+        <mirrorOf>central</mirrorOf>
+    </mirror>
+    <mirror>
+        <id>nexus-tencentyun</id>
+        <!-- 此配置避免了本仓库制品的拉取流量被切换到腾讯云镜像源，保证您在使用镜像加速的同时可以从本仓库拉取制品 -->
+        <mirrorOf>!atuspace-myframework-maven</mirrorOf>
+        <name>Nexus tencentyun</name>
+        <url>http://mirrors.cloud.tencent.com/nexus/repository/maven-public/</url>
+    </mirror>
+</mirrors>
+<servers>
+	<server>
+            <id>atuspace-component-maven</id>
+            <username>maven-1659357626021</username>
+            <password>114bdd0688a0eece6835762dcf171adb315226f5</password>
+    </server>
+</servers>
+<profiles>
+        <profile>
+            <id>Repository-Proxy</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <repositories>
+                <repository>
+                    <id>atuspace-component-maven</id>
+                    <name>maven</name>
+                    <url>https://atuspace-maven.pkg.coding.net/repository/myframework/maven/</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
+ <activeProfiles>
+    <activeProfile>Repository-Proxy</activeProfile>
+  </activeProfiles>
+
+
+</settings>
