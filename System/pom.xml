@@ -4,14 +4,9 @@
   		<groupId>com.progartisan.module</groupId>
         <artifactId>MyModules</artifactId>
         <version>${revision}</version>
-        <relativePath/>
   </parent>
   <artifactId>System</artifactId>
-  
-  <properties>
-  		<revision>0.3-SNAPSHOT</revision>
-   </properties>
-  
+
   <dependencies>
 	  <dependency>
             <groupId>com.progartisan.component</groupId>

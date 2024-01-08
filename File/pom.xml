@@ -6,7 +6,4 @@
     <version>${revision}</version>
   </parent>
   <artifactId>File</artifactId>
-  <properties>
-    <revision>0.3-SNAPSHOT</revision>
-  </properties>
 </project>

@@ -8,7 +8,7 @@
   </parent>
   <properties>
     	<flowable.version>6.8.0</flowable.version>
-      <revision>0.3-SNAPSHOT</revision>
+      <revision>0.4-SNAPSHOT</revision>
     </properties>
   <dependencies>
   	<!-- flowable 工作流相关 -->

@@ -2,11 +2,12 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.progartisan.component</groupId>
-		<artifactId>MyComponents</artifactId>
-		<version>0.3-SNAPSHOT</version>
+		<artifactId>MyFramework</artifactId>
+		<version>0.4-SNAPSHOT</version>
 	</parent>
 	<groupId>com.progartisan.module</groupId>
 	<artifactId>MyModules</artifactId>
+	<version>${revision}</version>
 	<packaging>pom</packaging>
 	<modules>
 		<module>BPM</module>
@@ -15,8 +16,8 @@
 	</modules>
 
 	<properties>
-		<revision>0.3-SNAPSHOT</revision>
-		<MyComponent-version>0.3-SNAPSHOT</MyComponent-version>
+		<revision>0.4-SNAPSHOT</revision>
+		<MyComponent-version>0.4-SNAPSHOT</MyComponent-version>
 	</properties>
 
 	<dependencies>
