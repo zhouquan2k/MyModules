@@ -1,16 +1,8 @@
 package com.progartisan.module.user.model;
 
-import java.util.Set;
-
-import javax.inject.Named;
-
 import com.progartisan.component.common.BizException;
 import com.progartisan.component.common.Util;
-import com.progartisan.component.framework.Context;
-import com.progartisan.component.framework.EnumCode;
-import com.progartisan.component.framework.EnumDescription;
-import com.progartisan.component.framework.Repository;
-import com.progartisan.component.framework.Service;
+import com.progartisan.component.framework.*;
 import com.progartisan.component.framework.Service.Type;
 import com.progartisan.component.framework.helper.CrudServiceImpl;
 import com.progartisan.module.user.api.User;
@@ -19,9 +11,11 @@ import com.progartisan.module.user.api.UserService;
 import com.progartisan.module.user.infra.ConvertUser;
 import com.progartisan.module.user.model.domain.UserDO;
 import com.progartisan.module.user.model.domain.UserPO;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import javax.inject.Named;
+import java.util.Set;
 
 // 支持多层次表达，code以.分隔层级：物理上平面，逻辑上支持层次（spring security/shiro）
 @Getter
@@ -69,6 +63,7 @@ class UserServiceImpl extends CrudServiceImpl<User, UserPO, UserDO> implements U
 	}
 
 	@Override
+	@Command(logParam = false)
 	public void updateMyPassword(UpdatePasswordParams params) throws BizException {
 		var userDo = repository.get(Context.getUserId()).orElseThrow();
 		userDo.updateMyPassword(params);
