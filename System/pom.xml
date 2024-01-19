@@ -11,7 +11,7 @@
 	  <dependency>
             <groupId>com.progartisan.component</groupId>
             <artifactId>Interface</artifactId>
-			<version>0.3-SNAPSHOT</version>
+          <version>${MyComponent-version}</version>
 	  </dependency>
   	<!-- TODO only used for log layout -->
   	<dependency>

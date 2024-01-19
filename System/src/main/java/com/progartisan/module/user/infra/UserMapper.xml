@@ -36,13 +36,13 @@
 	<resultMap id="UserWithRoles" type="com.progartisan.module.user.model.domain.UserPO" autoMapping="true" extends="User">
 		<collection property="roles" resultMap="UserRole" autoMapping="true"/>
 	</resultMap>
-	
-	<select id="getUsers" resultMap="UserWithRoles">
-		select u.*, r.*
+
+	<select id="queryUsers" resultMap="UserWithRoles">
+		select u.*, ur.*, r.*
 		from t_user u
 		left join t_user_role ur on u.user_id = ur.user_id
 		left join t_role r on ur.role_id = r.role_id
-		where r.type = 'Global'
+		-- where r.type = 'Global'
 	</select>
 
 	<select id="getUserByLoginName" resultMap="UserWithRoleAndPermission">

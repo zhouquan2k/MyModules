@@ -1,20 +1,19 @@
 package com.progartisan.module.user.infra;
 
-import java.util.List;
-import java.util.Map;
-
+import com.progartisan.component.data.BaseMapper;
+import com.progartisan.component.data.QueryProvider;
+import com.progartisan.module.user.model.domain.UserPO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.ResultMap;
 import org.apache.ibatis.annotations.SelectProvider;
 
-import com.progartisan.component.data.BaseMapper;
-import com.progartisan.component.data.QueryProvider;
-import com.progartisan.module.user.model.domain.UserPO;
+import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface UserMapper extends BaseMapper<UserPO> {
-    List<UserPO> getUsers();
+	List<UserPO> queryUsers();
 
     UserPO getUserByLoginName(String username);
 

@@ -1,8 +1,5 @@
 package com.progartisan.module.user.model.domain;
 
-import java.util.Date;
-import java.util.Set;
-
 import com.progartisan.component.common.BizException;
 import com.progartisan.component.common.Util;
 import com.progartisan.component.framework.Context;
@@ -11,6 +8,9 @@ import com.progartisan.component.framework.helper.EntityHelper;
 import com.progartisan.module.user.api.User;
 import com.progartisan.module.user.api.UserService.UpdatePasswordParams;
 import com.progartisan.module.user.model.domain.UserPO.UserRole;
+
+import java.util.Date;
+import java.util.Set;
 
 public class UserDO implements DO<UserPO> {
 
@@ -62,12 +62,14 @@ public class UserDO implements DO<UserPO> {
 		state.setPassword(passEncoder.encode(getDefaultPassword()));
     }
 
-    public void assignRoles(Set<UserRole> roles) {
-		roles.forEach(role -> {
+	// only update roles (in input param) for specified orgId
+	public void assignRoles(String orgId, Set<UserRole> roles) {
+		this.state.getRoles().removeIf(role -> Util.isEmpty(orgId) ? Util.isEmpty(role.getOrgId()) : Util.equals(orgId, role.getOrgId()));
+		this.state.getRoles().addAll(Util.mapToList(roles.stream(), role -> {
 			if (role.getCreateTime() == null)
 				role.setCreateTime(new Date());
-		});
-        state.setRoles(roles);
-    }
+			return role;
+		}));
+	}
 
 }

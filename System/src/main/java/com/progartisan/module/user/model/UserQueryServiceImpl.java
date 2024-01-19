@@ -1,14 +1,5 @@
 package com.progartisan.module.user.model;
 
-import java.util.List;
-import java.util.Map;
-
-import javax.inject.Named;
-
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-
 import com.progartisan.component.common.Util;
 import com.progartisan.component.framework.Context;
 import com.progartisan.component.framework.Service;
@@ -17,8 +8,14 @@ import com.progartisan.module.user.api.User;
 import com.progartisan.module.user.api.UserQueryService;
 import com.progartisan.module.user.infra.ConvertUser;
 import com.progartisan.module.user.infra.UserMapper;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import javax.inject.Named;
+import java.util.List;
+import java.util.Map;
 
 @Service(type = Type.Query)
 @Named
@@ -34,8 +31,8 @@ class UserQueryServiceImpl implements UserQueryService, UserDetailsService {
     }
 
     @Override
-    public List<User> getUsers() {
-        var users = userMapper.getUsers();
+    public List<User> queryUsers() {
+        var users = userMapper.queryUsers();
         return Util.mapToList(users.stream(), convert::poToDto);
     }
 

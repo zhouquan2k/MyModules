@@ -107,7 +107,7 @@ export default {
       this.assignRolesVisible = true;
     },
     async onAssignRoles() {
-      await user_api.assignRoles(this.user.userId, this.roles.map(role => ({ roleId: role, orgId: this.orgId })));
+      await user_api.assignRoles(this.user.userId, null, this.roles.map(role => ({ roleId: role, orgId: this.orgId })));
       this.assignRolesVisible = false;
       this.$refs.crud.getList();
       this.$message.success('分配角色成功.')

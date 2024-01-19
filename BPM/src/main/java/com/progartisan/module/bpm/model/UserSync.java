@@ -1,20 +1,18 @@
 package com.progartisan.module.bpm.model;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.flowable.engine.IdentityService;
-import org.flowable.idm.api.User;
-import org.springframework.context.event.EventListener;
-
 import com.progartisan.component.common.Util;
 import com.progartisan.component.framework.EntityCreatedEvent;
 import com.progartisan.component.framework.EntityUpdatedEvent;
 import com.progartisan.module.user.api.User.UserRole;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.flowable.engine.IdentityService;
+import org.flowable.idm.api.User;
+import org.springframework.context.event.EventListener;
+
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -22,13 +20,12 @@ public class UserSync {
 	private final IdentityService identityService;
 
 	private String roleToGroup(UserRole role) {
-		if (Util.isEmpty(role.getOrgId()) || Util.equals(role.getRoleId(), "0"))
-			return null;
+		Util.check(Util.isNotEmpty(role.getOrgId()) && !Util.equals(role.getRoleId(), "0"));
 		return String.format("%s-%s", role.getOrgId(), role.getRoleId());
 	}
 
 	private void syncRoles(String userId, Set<UserRole> roles) {
-		var targetRoleMap = Util.toMap(roles.stream(), role -> roleToGroup(role));
+		var targetRoleMap = Util.toMap(roles.stream().filter(role -> Util.isNotEmpty(role.getOrgId()) && !Util.equals(role.getRoleId(), "0")), role -> roleToGroup(role));
 
 		var groups = identityService.createGroupQuery().groupMember(userId).list();
 
@@ -43,8 +40,9 @@ public class UserSync {
 				return Stream.of(groupId);
 			}
 		}).collect(Collectors.toSet()) ;
-		
-		var rolesToAdd = roles.stream().filter(role -> !alreadyExistSet.contains(roleToGroup(role)));
+
+		var rolesToAdd = roles.stream().filter(role -> Util.isNotEmpty(role.getOrgId()) && !Util.equals(role.getRoleId(), "0")
+				&& !alreadyExistSet.contains(roleToGroup(role)));
 		rolesToAdd.forEach(role -> {
 			// 设置分组
 			var groupId = roleToGroup(role);

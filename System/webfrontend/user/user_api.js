@@ -2,11 +2,12 @@ import CrudApi from '@/utils/api_base';
 import { request } from '@/utils/utils'
 
 const user_api = new CrudApi('/api/users')
-user_api.assignRoles = async function (userId, roles) {
+user_api.assignRoles = async function (userId, orgId, roles) {
     return await request({
         url: `${this.baseUrl}/${userId}/assign`,
         data: roles,
         method: 'post',
+        params: { orgId }
     });
 }
 
