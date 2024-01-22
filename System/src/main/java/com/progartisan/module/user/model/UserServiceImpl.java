@@ -51,8 +51,9 @@ class UserServiceImpl extends CrudServiceImpl<User, UserPO, UserDO> implements U
 	public void assignRoles(String userId, String orgId, Set<UserRole> roles) {
         var user = repository.get(userId).orElseThrow();
 		user.assignRoles(orgId, convert.dtoToPo(roles));
-        repository.save(user); // repository.update(user, RelationOnly, 'roles')
-    }
+		var userPO = (UserPO) repository.save(user); // repository.update(user, RelationOnly, 'roles')
+		Context.publishEvent(new EntityUpdatedEvent(convert.poToDto(userPO)));
+	}
 
 	@Override
 	public void updateMyProfile(User user) {
