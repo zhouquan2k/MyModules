@@ -48,7 +48,7 @@ export default {
             // await login(this.loginForm);
             this.$store.dispatch("Login", this.loginForm).then(() => {
                 // this.$router.replace(this.$route.query.from || '/');
-                window.location.href = this.$route.query.from || '/';
+                window.location.replace(this.$route.query.from || '/');
             });
 
         }

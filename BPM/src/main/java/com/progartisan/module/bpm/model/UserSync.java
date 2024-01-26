@@ -25,6 +25,7 @@ public class UserSync {
 	}
 
 	private void syncRoles(String userId, Set<UserRole> roles) {
+		if (roles == null) roles = Set.of();
 		var targetRoleMap = Util.toMap(roles.stream().filter(role -> Util.isNotEmpty(role.getOrgId()) && !Util.equals(role.getRoleId(), "0")), role -> roleToGroup(role));
 
 		var groups = identityService.createGroupQuery().groupMember(userId).list();
@@ -56,16 +57,17 @@ public class UserSync {
 	void createUser(com.progartisan.module.user.api.User user) {
 		// 创建一个新用户
 		var existingUser = identityService.createUserQuery().userId(user.getUserId()).singleResult();
-		// 如果用户存在，则先删除
-		if (existingUser != null) {
-			identityService.deleteUser(user.getUserId());
+		// 如果用户存在，则忽略
+		if (existingUser == null) {
+			User fUser = identityService.newUser(user.getUserId());
+			fUser.setFirstName(user.getUsername());
+
+			// 保存用户
+			identityService.saveUser(fUser);
+			// 同步角色到组
+			var roles = user.getRoles();
+			syncRoles(user.getUserId(), roles);
 		}
-		User fUser = identityService.newUser(user.getUserId());
-		fUser.setFirstName(user.getUsername());
-		var roles = user.getRoles();
-		// 保存用户
-		identityService.saveUser(fUser);
-		syncRoles(user.getUserId(), roles);
 	}
 
 	@EventListener

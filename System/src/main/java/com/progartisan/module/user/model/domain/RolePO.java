@@ -1,10 +1,5 @@
 package com.progartisan.module.user.model.domain;
 
-import static com.progartisan.component.meta.Meta.BooleanEx.False;
-import static com.progartisan.component.meta.Meta.BooleanEx.True;
-
-import java.util.List;
-
 import com.progartisan.component.common.Util;
 import com.progartisan.component.data.BaseEntity;
 import com.progartisan.component.meta.Meta;
@@ -12,10 +7,14 @@ import com.progartisan.component.meta.Meta.Category;
 import com.progartisan.component.meta.Meta.Type;
 import com.progartisan.component.meta.MetaEntity;
 import com.progartisan.module.user.api.Role.RoleType;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
+import static com.progartisan.component.meta.Meta.BooleanEx.False;
+import static com.progartisan.component.meta.Meta.BooleanEx.True;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -43,7 +42,7 @@ public class RolePO extends BaseEntity<RolePO> {
 	@Meta(value = Type.ID, label = "编号", hidden = False, listable = True)
     private String roleId;
 
-	@Meta(category = Category.DisplayName, label = "角色名称", updatable = True) // 显示名称
+    @Meta(category = Category.DisplayName, label = "角色名称", updatable = True) // 显示名称
     private String roleName;
 
     /*
@@ -59,6 +58,9 @@ public class RolePO extends BaseEntity<RolePO> {
 
 	@Meta(value = Type.Enum, label = "类型", listable = True, updatable = True, searchable = True, nullable = False) //
 	private RoleType roleType;
+
+    @Meta(value = Type.Enum, label = "内置角色", listable = True)
+    private Boolean fixed;
 
 	@Meta(value = Type.ToMany, label = "权限")
     private List<RolePermission> _permissions;

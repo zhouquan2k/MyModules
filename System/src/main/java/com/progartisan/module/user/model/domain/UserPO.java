@@ -1,34 +1,29 @@
 package com.progartisan.module.user.model.domain;
 
-import static com.progartisan.component.meta.Meta.BooleanEx.False;
-import static com.progartisan.component.meta.Meta.BooleanEx.True;
-
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
 import com.progartisan.component.data.BaseEntity;
+import com.progartisan.component.data.DictionaryItem;
 import com.progartisan.component.framework.AuthInfo;
 import com.progartisan.component.meta.Meta;
 import com.progartisan.component.meta.Meta.Category;
 import com.progartisan.component.meta.Meta.Type;
 import com.progartisan.component.meta.MetaEntity;
 import com.progartisan.module.user.api.User.UserStatus;
+import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
+import static com.progartisan.component.meta.Meta.BooleanEx.False;
+import static com.progartisan.component.meta.Meta.BooleanEx.True;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
 @MetaEntity(tableName = "t_user")
-public class UserPO extends BaseEntity<UserPO> implements UserDetails, AuthInfo {
+public class UserPO extends BaseEntity<UserPO> implements UserDetails, AuthInfo, DictionaryItem {
 
     private static final long serialVersionUID = 1L;
 
@@ -36,28 +31,28 @@ public class UserPO extends BaseEntity<UserPO> implements UserDetails, AuthInfo 
     private String userId;
 
 	@Meta(value = Type.String, label = "登录名", searchable = True, nullable = False, unique = {
-			"login_name" }, updatable = True)
+            "login_name"}, updatable = True)
     private String loginName;
 
 	@Meta(category = Category.PersonName, label = "用户名", nullable = False)
     private String username;
 
-	@Meta(value = Type.String, label = "用户编码", updatable = True, searchable = True)
+    @Meta(value = Type.String, label = "用户编码", updatable = True, searchable = True)
 	private String userCode;
 
 	@Meta(value = Type.ToMany, label = "角色", refData = "roleId,roleName", nullable = False, searchable = True) // UserRole.roleName
 	private Set<UserRole> roles;
 
-	@Meta(value = Type.Enum, label = "状态", updatable = True, defaultValue = "Active")
+    @Meta(value = Type.Enum, label = "状态", updatable = True, defaultValue = "Active")
 	private UserStatus status;
 
 	@Meta(label = "密码", category = Category.Password)
     private String password;
 
-	@Meta(category = Category.Phone, updatable = True)
+    @Meta(category = Category.Phone, updatable = True)
     private String phone;
 
-	@Meta(value = Type.String, label = "备注", updatable = True)
+    @Meta(value = Type.String, label = "备注", updatable = True)
     private String remark;
 
 	/* TODO
@@ -93,6 +88,22 @@ public class UserPO extends BaseEntity<UserPO> implements UserDetails, AuthInfo 
     @Override
     public boolean isEnabled() {
         return this.status != UserStatus.Disabled;
+    }
+
+    // for DictionaryItem
+    @Override
+    public String getType() {
+        return "User";
+    }
+
+    @Override
+    public Object getValue() {
+        return this.userId;
+    }
+
+    @Override
+    public String getLabel() {
+        return this.username;
     }
 
     @MetaEntity(tableName = "t_user_role")

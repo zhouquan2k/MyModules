@@ -1,14 +1,7 @@
 package com.progartisan.module.user.model;
 
-import java.util.List;
-
-import javax.inject.Named;
-
-import com.progartisan.component.framework.Command;
-import com.progartisan.component.framework.EnumCode;
-import com.progartisan.component.framework.EnumDescription;
-import com.progartisan.component.framework.Repository;
-import com.progartisan.component.framework.Service;
+import com.progartisan.component.common.BizException;
+import com.progartisan.component.framework.*;
 import com.progartisan.component.framework.Service.Type;
 import com.progartisan.component.framework.helper.CrudServiceImpl;
 import com.progartisan.module.user.api.Role;
@@ -16,9 +9,11 @@ import com.progartisan.module.user.api.RoleService;
 import com.progartisan.module.user.infra.ConvertRole;
 import com.progartisan.module.user.model.domain.RoleDO;
 import com.progartisan.module.user.model.domain.RolePO;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import javax.inject.Named;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -45,5 +40,13 @@ public class RoleServiceImpl extends CrudServiceImpl<Role, RolePO, RoleDO> imple
         RoleDO role = this.repository.get(roleId).orElseThrow();
         role.assignPermissions(permissionCodes);
         this.repository.save(role);
+    }
+
+    @Command
+    @Override
+    public void delete(String id) throws BizException {
+        RoleDO roleDo = this.repository.get(id).orElseThrow();
+        roleDo.delete();
+        this.repository.save(roleDo);
     }
 }

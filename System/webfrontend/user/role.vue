@@ -42,8 +42,12 @@ export default {
         {
           desc: "分配权限",
           method: 'openAssignPermissionsDlg',
+        },
+        {
+          desc: '删除',
+          // available: row => !row.fixed ,
+          method: 'showDeleteConfirm'
         }
-        , defaultCrudActions[1]
       ]
     };
   },

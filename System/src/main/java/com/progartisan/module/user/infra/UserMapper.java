@@ -13,7 +13,8 @@ import java.util.Map;
 
 @Mapper
 public interface UserMapper extends BaseMapper<UserPO> {
-	List<UserPO> queryUsers();
+	@Override
+	List<UserPO> queryAll();
 
     UserPO getUserByLoginName(String username);
 

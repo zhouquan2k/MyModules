@@ -37,7 +37,7 @@
 		<collection property="roles" resultMap="UserRole" autoMapping="true"/>
 	</resultMap>
 
-	<select id="queryUsers" resultMap="UserWithRoles">
+	<select id="queryAll" resultMap="UserWithRoles">
 		select u.*, ur.*, r.*
 		from t_user u
 		left join t_user_role ur on u.user_id = ur.user_id

@@ -1,22 +1,19 @@
 package com.progartisan.module.user;
 
-import org.mapstruct.factory.Mappers;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
+import com.progartisan.component.data.impl.DictionaryProvider;
 import com.progartisan.component.data.impl.RepositoryImpl;
 import com.progartisan.component.framework.Repository;
 import com.progartisan.module.user.api.Role;
 import com.progartisan.module.user.api.User;
 import com.progartisan.module.user.infra.ConvertRole;
 import com.progartisan.module.user.infra.ConvertUser;
-import com.progartisan.module.user.model.domain.PassEncoder;
-import com.progartisan.module.user.model.domain.RoleDO;
-import com.progartisan.module.user.model.domain.RolePO;
-import com.progartisan.module.user.model.domain.UserDO;
-import com.progartisan.module.user.model.domain.UserPO;
+import com.progartisan.module.user.infra.UserMapper;
+import com.progartisan.module.user.model.domain.*;
+import org.mapstruct.factory.Mappers;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class ConfigUser {
@@ -56,6 +53,11 @@ public class ConfigUser {
 			}
 
 		};
+    }
+
+    @Bean
+    public DictionaryProvider<UserPO> userDictioanyProvider(UserMapper mapper) {
+        return new DictionaryProvider<>(mapper);
     }
 
 }

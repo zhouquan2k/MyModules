@@ -32,7 +32,7 @@ class UserQueryServiceImpl implements UserQueryService, UserDetailsService {
 
     @Override
     public List<User> queryUsers() {
-        var users = userMapper.queryUsers();
+        var users = userMapper.queryAll();
         return Util.mapToList(users.stream(), convert::poToDto);
     }
 
