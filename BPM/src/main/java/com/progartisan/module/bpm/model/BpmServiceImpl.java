@@ -1,21 +1,5 @@
 package com.progartisan.module.bpm.model;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.inject.Named;
-
-import org.flowable.common.engine.impl.identity.Authentication;
-import org.flowable.engine.HistoryService;
-import org.flowable.engine.RepositoryService;
-import org.flowable.engine.RuntimeService;
-import org.flowable.engine.TaskService;
-import org.flowable.engine.repository.ProcessDefinition;
-import org.flowable.engine.runtime.ProcessInstance;
-import org.flowable.task.api.Task;
-import org.flowable.task.api.TaskInfo;
-
 import com.progartisan.component.common.Util;
 import com.progartisan.component.framework.Context;
 import com.progartisan.component.framework.Service;
@@ -23,8 +7,22 @@ import com.progartisan.module.bpm.api.BpmProcessInstance;
 import com.progartisan.module.bpm.api.BpmProcessInstanceCreateReq;
 import com.progartisan.module.bpm.api.BpmService;
 import com.progartisan.module.bpm.api.BpmTask;
-
 import lombok.RequiredArgsConstructor;
+import org.flowable.common.engine.impl.identity.Authentication;
+import org.flowable.engine.HistoryService;
+import org.flowable.engine.RepositoryService;
+import org.flowable.engine.RuntimeService;
+import org.flowable.engine.TaskService;
+import org.flowable.engine.history.HistoricProcessInstance;
+import org.flowable.engine.repository.ProcessDefinition;
+import org.flowable.engine.runtime.ProcessInstance;
+import org.flowable.task.api.Task;
+import org.flowable.task.api.TaskInfo;
+
+import javax.inject.Named;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Named
 @RequiredArgsConstructor
@@ -77,14 +75,17 @@ public class BpmServiceImpl implements BpmService {
 		List<Task> tasks = taskService.createTaskQuery().taskCandidateUser(Context.getUserId())
 				.includeProcessVariables().orderByTaskCreateTime()
                 .asc().list();
-        //获取用户所属候选组的任务
-        // var groups = List.of("warehouse");
-        /*
-        List<Group> groups = identityService.createGroupQuery().groupMember(Context.getUserId()).list();
-        List<Task> groupTasks = taskService.createTaskQuery()
-                .taskCandidateGroupIn(Util.mapToList(groups.stream(), Group::getId)).list();
-        */
         return convertTask.tasksToBpmTasks(tasks);
+    }
+
+    @Override
+    public List<BpmProcessInstance> queryMyHistoryInstances() {
+        // 查询参与者为特定用户的历史流程实例
+        List<HistoricProcessInstance> instances = historyService.createHistoricProcessInstanceQuery()
+                .involvedUser(Context.getUserId())
+                .orderByProcessInstanceStartTime().desc()
+                .listPage(0, 10);
+        return convertInstance.instancesToBpmInstances(instances);
     }
 
     @Override
