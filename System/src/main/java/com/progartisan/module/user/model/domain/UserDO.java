@@ -72,4 +72,7 @@ public class UserDO implements DO<UserPO> {
 		}));
 	}
 
+	public void removeFromOrg(String orgId) {
+		this.state.getRoles().removeIf(role -> Util.equals(role.getOrgId(), orgId));
+	}
 }

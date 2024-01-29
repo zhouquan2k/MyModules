@@ -1,7 +1,5 @@
 package com.progartisan.module.security.model;
 
-import javax.inject.Named;
-
 import com.progartisan.component.framework.EnumCode;
 import com.progartisan.component.framework.EnumDescription;
 import com.progartisan.component.framework.Repository;
@@ -13,7 +11,6 @@ import com.progartisan.module.security.api.Menu;
 import com.progartisan.module.security.api.MenuService;
 import com.progartisan.module.security.model.domain.MenuDO;
 import com.progartisan.module.security.model.domain.MenuPO;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -26,8 +23,7 @@ enum MenuPermissions implements EnumDescription, EnumCode {
     private String desc;
 }
 
-@Service(value = "菜单管理", type = Type.Command, name = "menu", permissions = MenuPermissions.class, order = 3)
-@Named
+@Service(value = "菜单管理", type = Type.Command, name = "menu", order = -1)
 @Deprecated
 public class MenuServiceImpl extends CrudServiceImpl<Menu, MenuPO, MenuDO> implements MenuService {
 

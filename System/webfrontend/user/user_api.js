@@ -11,6 +11,13 @@ user_api.assignRoles = async function (userId, orgId, roles) {
     });
 }
 
+user_api.removeFromOrg = async function (userId, orgId) {
+    return await request({
+        url: `${this.baseUrl}/${userId}/remove/org/${orgId}`,
+        method: 'delete',
+    });
+}
+
 user_api.resetPassword = async function (userId) {
     return await request({
         url: `${this.baseUrl}/${userId}/password-reset`,

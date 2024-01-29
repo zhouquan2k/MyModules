@@ -3,6 +3,7 @@ package com.progartisan.module.bpm.model;
 import com.progartisan.component.common.Util;
 import com.progartisan.component.framework.EntityCreatedEvent;
 import com.progartisan.component.framework.EntityUpdatedEvent;
+import com.progartisan.module.user.api.Role;
 import com.progartisan.module.user.api.User.UserRole;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,13 +21,17 @@ public class UserSync {
 	private final IdentityService identityService;
 
 	private String roleToGroup(UserRole role) {
-		Util.check(Util.isNotEmpty(role.getOrgId()) && !Util.equals(role.getRoleId(), "0"));
-		return String.format("%s-%s", role.getOrgId(), role.getRoleId());
+		if (role.getRole().getRoleType() == Role.RoleType.GroupPublic) {
+			Util.check(Util.isNotEmpty(role.getOrgId()) && !Util.equals(role.getRoleId(), "0"));
+			return String.format("%s-%s", role.getOrgId(), role.getRoleId());
+		} else {
+			return role.getRoleId();
+		}
 	}
 
 	private void syncRoles(String userId, Set<UserRole> roles) {
 		if (roles == null) roles = Set.of();
-		var targetRoleMap = Util.toMap(roles.stream().filter(role -> Util.isNotEmpty(role.getOrgId()) && !Util.equals(role.getRoleId(), "0")), role -> roleToGroup(role));
+		var targetRoleMap = Util.toMap(roles.stream().filter(role -> role.getRole().getWorkflowGroup()), role -> roleToGroup(role));
 
 		var groups = identityService.createGroupQuery().groupMember(userId).list();
 
@@ -42,7 +47,7 @@ public class UserSync {
 			}
 		}).collect(Collectors.toSet()) ;
 
-		var rolesToAdd = roles.stream().filter(role -> Util.isNotEmpty(role.getOrgId()) && !Util.equals(role.getRoleId(), "0")
+		var rolesToAdd = roles.stream().filter(role -> role.getRole().getWorkflowGroup()
 				&& !alreadyExistSet.contains(roleToGroup(role)));
 		rolesToAdd.forEach(role -> {
 			// 设置分组
@@ -87,6 +92,16 @@ public class UserSync {
 		if (event.getEntity() instanceof com.progartisan.module.user.api.User) {
 			log.info("> user updated");
 			var user = (com.progartisan.module.user.api.User) event.getEntity();
+
+			// in case the user not exist in workflow
+			var existingUser = identityService.createUserQuery().userId(user.getUserId()).singleResult();
+			if (existingUser == null) {
+				User fUser = identityService.newUser(user.getUserId());
+				fUser.setFirstName(user.getUsername());
+
+				// 保存用户
+				identityService.saveUser(fUser);
+			}
 			syncRoles(user.getUserId(), user.getRoles());
 		}
 	}

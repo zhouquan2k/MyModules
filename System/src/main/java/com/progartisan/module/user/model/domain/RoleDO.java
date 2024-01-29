@@ -38,7 +38,7 @@ public class RoleDO implements DO<RolePO> {
     }
 
     public void delete() throws BizException {
-        Util.checkBiz(this.state.getFixed() == null || !this.state.getFixed(), Util.GenericError, "不能删除内置角色，只能设置状态为不可用");
+        Util.checkBiz(this.state.getWorkflowGroup() == null || !this.state.getWorkflowGroup(), Util.GenericError, "不能删除工作流角色，只能设置状态为不可用");
         this.state.setDelFlag(true);
     }
 

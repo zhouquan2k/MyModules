@@ -9,6 +9,7 @@ import com.progartisan.module.user.api.User;
 import com.progartisan.module.user.api.User.UserRole;
 import com.progartisan.module.user.api.UserService;
 import com.progartisan.module.user.infra.ConvertUser;
+import com.progartisan.module.user.infra.UserMapper;
 import com.progartisan.module.user.model.domain.UserDO;
 import com.progartisan.module.user.model.domain.UserPO;
 import lombok.AllArgsConstructor;
@@ -33,10 +34,19 @@ enum UserPermissions implements EnumDescription, EnumCode {
 class UserServiceImpl extends CrudServiceImpl<User, UserPO, UserDO> implements UserService {
 
     private final ConvertUser convert;
+	// can use mapper here in a command service?
+	private final UserMapper userMapper;
 
-	public UserServiceImpl(Repository<UserDO> repository, ConvertUser convert) {
+	@Override
+	public User getOne(String id) {
+		return convert.poToDto(this.userMapper.getUser(id));
+	}
+
+	public UserServiceImpl(Repository<UserDO> repository, ConvertUser convert,
+						   UserMapper userMapper) {
 		super(repository, convert);
         this.convert = convert;
+		this.userMapper = userMapper;
     }
 
     @Override
@@ -52,6 +62,19 @@ class UserServiceImpl extends CrudServiceImpl<User, UserPO, UserDO> implements U
         var user = repository.get(userId).orElseThrow();
 		user.assignRoles(orgId, convert.dtoToPo(roles));
 		var userPO = (UserPO) repository.save(user); // repository.update(user, RelationOnly, 'roles')
+		userPO = enrichWithRoles(userPO);
+		Context.publishEvent(new EntityUpdatedEvent(convert.poToDto(userPO)));
+	}
+
+	private UserPO enrichWithRoles(UserPO user) {
+		return this.userMapper.getUser(user.getUserId());
+	}
+
+	@Override
+	public void removeFromOrg(String userId, String orgId) {
+		var user = repository.get(userId).orElseThrow();
+		user.removeFromOrg(orgId);
+		var userPO = (UserPO) repository.save(user);
 		Context.publishEvent(new EntityUpdatedEvent(convert.poToDto(userPO)));
 	}
 
