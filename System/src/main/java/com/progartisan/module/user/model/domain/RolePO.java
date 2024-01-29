@@ -59,7 +59,7 @@ public class RolePO extends BaseEntity<RolePO> {
 	@Meta(value = Type.Enum, label = "类型", listable = True, updatable = True, searchable = True, nullable = False) //
 	private RoleType roleType;
 
-    @Meta(value = Type.Enum, label = "内置角色", listable = True)
+    @Meta(value = Type.Enum, label = "内置角色", listable = True, updatable = False)
     private Boolean fixed;
 
 	@Meta(value = Type.ToMany, label = "权限")
