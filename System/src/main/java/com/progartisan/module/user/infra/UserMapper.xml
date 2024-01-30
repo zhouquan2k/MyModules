@@ -28,13 +28,13 @@
 		<id property="rolePermissionId" column="role_permission_id"/>
 	</resultMap>
 	<resultMap id="UserWithRoleAndPermission" type="com.progartisan.module.user.model.domain.UserPO" extends="User" autoMapping="true">
-		<collection property="roles" resultMap="UserRoleWithPermissions"/>
+		<collection property="roles" resultMap="UserRoleWithPermissions" notNullColumn="role_id"/>
     	<!--collection property="permissions" ofType="java.lang.String">
     		<result column="permission" />
     	</collection-->
 	</resultMap>
 	<resultMap id="UserWithRoles" type="com.progartisan.module.user.model.domain.UserPO" autoMapping="true" extends="User">
-		<collection property="roles" resultMap="UserRole" autoMapping="true"/>
+		<collection property="roles" resultMap="UserRole" autoMapping="true" notNullColumn="role_id"/>
 	</resultMap>
 
 	<select id="queryAll" resultMap="UserWithRoles">
