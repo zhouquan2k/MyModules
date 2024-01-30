@@ -31,7 +31,8 @@ public class UserSync {
 
 	private void syncRoles(String userId, Set<UserRole> roles) {
 		if (roles == null) roles = Set.of();
-		var targetRoleMap = Util.toMap(roles.stream().filter(role -> role.getRole().getWorkflowGroup()), role -> roleToGroup(role));
+		var targetRoleMap = Util.toMap(roles.stream().filter(role -> role.getRole().getWorkflowGroup() != null && role.getRole().getWorkflowGroup()),
+				this::roleToGroup);
 
 		var groups = identityService.createGroupQuery().groupMember(userId).list();
 
