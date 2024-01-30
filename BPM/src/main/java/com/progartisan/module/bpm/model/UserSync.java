@@ -48,7 +48,7 @@ public class UserSync {
 			}
 		}).collect(Collectors.toSet()) ;
 
-		var rolesToAdd = roles.stream().filter(role -> role.getRole().getWorkflowGroup()
+		var rolesToAdd = roles.stream().filter(role -> role.getRole().getWorkflowGroup() != null && role.getRole().getWorkflowGroup()
 				&& !alreadyExistSet.contains(roleToGroup(role)));
 		rolesToAdd.forEach(role -> {
 			// 设置分组
