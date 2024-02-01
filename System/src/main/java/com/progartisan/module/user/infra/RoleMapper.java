@@ -1,18 +1,20 @@
 package com.progartisan.module.user.infra;
 
-import java.util.List;
-
+import com.progartisan.component.data.BaseMapper;
+import com.progartisan.module.user.model.domain.RolePO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
-import com.progartisan.component.data.BaseMapper;
-import com.progartisan.module.user.model.domain.RolePO;
+import java.util.List;
 
 @Mapper
 public interface RoleMapper extends BaseMapper<RolePO> {
 
-	@Select("select * from t_role where org_id = #{orgId} or role_type = 'GroupPublic'")
+    @Select("select * from t_role where role_id=#{roleId}")
+    RolePO getOne(String roleId);
+
+    @Select("select * from t_role where org_id = #{orgId} or role_type = 'GroupPublic'")
     List<RolePO> queryByOrgId(@Param("orgId") String orgId);
 
     @Override

@@ -9,7 +9,9 @@ import com.progartisan.module.user.api.User;
 import com.progartisan.module.user.api.User.UserRole;
 import com.progartisan.module.user.api.UserService;
 import com.progartisan.module.user.infra.ConvertUser;
+import com.progartisan.module.user.infra.RoleMapper;
 import com.progartisan.module.user.infra.UserMapper;
+import com.progartisan.module.user.model.domain.RolePO;
 import com.progartisan.module.user.model.domain.UserDO;
 import com.progartisan.module.user.model.domain.UserPO;
 import lombok.AllArgsConstructor;
@@ -36,6 +38,7 @@ class UserServiceImpl extends CrudServiceImpl<User, UserPO, UserDO> implements U
     private final ConvertUser convert;
 	// can use mapper here in a command service?
 	private final UserMapper userMapper;
+	private final RoleMapper roleMapper;
 
 	@Override
 	public User getOne(String id) {
@@ -43,10 +46,11 @@ class UserServiceImpl extends CrudServiceImpl<User, UserPO, UserDO> implements U
 	}
 
 	public UserServiceImpl(Repository<UserDO> repository, ConvertUser convert,
-						   UserMapper userMapper) {
+						   UserMapper userMapper, RoleMapper roleMapper) {
 		super(repository, convert);
         this.convert = convert;
 		this.userMapper = userMapper;
+		this.roleMapper = roleMapper;
     }
 
     @Override
@@ -60,15 +64,21 @@ class UserServiceImpl extends CrudServiceImpl<User, UserPO, UserDO> implements U
     @Override
 	public void assignRoles(String userId, String orgId, Set<UserRole> roles) {
         var user = repository.get(userId).orElseThrow();
-		user.assignRoles(orgId, convert.dtoToPo(roles));
+		user.enrichWithRoles(this::enrichWithRole);
+		var enrichedRoles = convert.dtoToPo(roles);
+		enrichedRoles.forEach(userRole -> userRole.setRole(enrichWithRole(userRole.getRoleId())));
+		user.assignRoles(orgId, enrichedRoles);
 		var userPO = (UserPO) repository.save(user); // repository.update(user, RelationOnly, 'roles')
-		userPO = enrichWithRoles(userPO);
 		Context.publishEvent(new EntityUpdatedEvent(convert.poToDto(userPO)));
 	}
 
-	private UserPO enrichWithRoles(UserPO user) {
-		return this.userMapper.getUser(user.getUserId());
+	private RolePO enrichWithRole(String roleId) {
+		return this.roleMapper.getOne(roleId);
 	}
+
+	// private UserPO enrichWithRoles(UserPO user) {
+	//	return this.userMapper.getUser(user.getUserId());
+	// }
 
 	@Override
 	public void removeFromOrg(String userId, String orgId) {
