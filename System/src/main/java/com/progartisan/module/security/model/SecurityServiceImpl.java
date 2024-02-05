@@ -1,20 +1,5 @@
 package com.progartisan.module.security.model;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.inject.Named;
-import javax.servlet.http.HttpServletRequest;
-
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestBody;
-
 import com.progartisan.component.common.BizException;
 import com.progartisan.component.common.Util;
 import com.progartisan.component.framework.AuthInfo;
@@ -22,14 +7,26 @@ import com.progartisan.component.framework.Command;
 import com.progartisan.component.framework.Metadata.FunctionDef;
 import com.progartisan.component.framework.Metadata.PermissionDef;
 import com.progartisan.component.framework.Service;
-import com.progartisan.component.framework.spi.MetadataProvider;
 import com.progartisan.component.security.AuthResult;
 import com.progartisan.component.security.TokenUtil;
+import com.progartisan.component.spi.MetadataProvider;
 import com.progartisan.module.security.api.SecurityService;
 import com.progartisan.module.user.api.Role.RoleType;
 import com.progartisan.module.user.model.domain.UserPO;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import javax.inject.Named;
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 class SecurityPermissions {
 	static final String AdminPermissions = "***";
