@@ -61,6 +61,18 @@ class UserServiceImpl extends CrudServiceImpl<User, UserPO, UserDO> implements U
 
     }
 
+	@Override
+	@Command
+	public User create(User user) {
+		UserPO po = convert.dtoToPo(user);
+		UserDO _do = repository.create(po);
+		_do.enrichWithRoles(this::enrichWithRole);
+		po = (UserPO) repository.save(_do);
+		User ret = convert.poToDto(po);
+		Context.publishEvent(new EntityCreatedEvent(ret));
+		return ret;
+	}
+
     @Override
 	public void assignRoles(String userId, String orgId, Set<UserRole> roles) {
         var user = repository.get(userId).orElseThrow();
