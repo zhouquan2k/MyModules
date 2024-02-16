@@ -32,3 +32,10 @@ export function getAllMetadata() {
         method: 'get'
     });
 }
+
+export function getVersion() {
+    return request({
+        url: `/api/misc/version`,
+        method: 'get',
+    })
+}
