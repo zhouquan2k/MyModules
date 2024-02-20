@@ -39,7 +39,7 @@ public interface UserMapper extends BaseMapper<UserPO> {
 			+ "left join t_user_role roles on a.user_id = roles.user_id  \n"
 			+ "left join t_role role on role.role_id = roles.role_id\n" //
 			+ "${where}\n" //
-			+ "order by a.created_time desc ";
+			+ "order by a.username";
 
 	// 当需要跨多表字段查询时，使用Map替代Object，并将类型信息已第三个参数传入
     default List<UserPO> queryByExample(Map<String, Object> example) {
