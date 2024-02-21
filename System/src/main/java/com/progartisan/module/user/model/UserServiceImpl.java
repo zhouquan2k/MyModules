@@ -14,21 +14,22 @@ import com.progartisan.module.user.infra.UserMapper;
 import com.progartisan.module.user.model.domain.RolePO;
 import com.progartisan.module.user.model.domain.UserDO;
 import com.progartisan.module.user.model.domain.UserPO;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 import javax.inject.Named;
+import java.util.List;
 import java.util.Set;
 
 // 支持多层次表达，code以.分隔层级：物理上平面，逻辑上支持层次（spring security/shiro）
-@Getter
-@AllArgsConstructor
-enum UserPermissions implements EnumDescription, EnumCode {
-    UserRead("read", "用户信息读"), UserWrite("write", "用户信息写"), UserImportExport("importexport", "用户信息导入导出"),
-    UserPasswordReset("pass-reset", "用户密码重置");
 
-    private String code;
-    private String desc;
+class UserPermissions {
+	static final String UserRead = "read";
+	static final String UserWrite = "write";
+	static final String UserPasswordReset = "pass-reset";
+	public static List<Metadata.PermissionDef> permissionDefList = List.of( //
+			new Metadata.PermissionDef(UserWrite, "用户信息写"), //
+			new Metadata.PermissionDef(UserRead, "用户信息读"), //
+			new Metadata.PermissionDef(UserPasswordReset, "用户密码重置")
+	);
 }
 
 @Service(value = "用户管理", type = Type.Command, name = "user", permissions = UserPermissions.class, order = 1)
@@ -54,6 +55,7 @@ class UserServiceImpl extends CrudServiceImpl<User, UserPO, UserDO> implements U
     }
 
     @Override
+	@Command(permission = UserPermissions.UserPasswordReset)
     public void resetPassword(String userId) {
         var user = repository.get(userId).orElseThrow();
         user.resetPassword();
@@ -62,7 +64,7 @@ class UserServiceImpl extends CrudServiceImpl<User, UserPO, UserDO> implements U
     }
 
 	@Override
-	@Command
+	@Command(permission = UserPermissions.UserWrite)
 	public User create(User user) {
 		UserPO po = convert.dtoToPo(user);
 		UserDO _do = repository.create(po);
@@ -73,7 +75,19 @@ class UserServiceImpl extends CrudServiceImpl<User, UserPO, UserDO> implements U
 		return ret;
 	}
 
+	@Command(permission = UserPermissions.UserWrite)
+	@Override
+	public void update(String id, User dto) {
+		UserDO user = repository.get(id).orElseThrow();
+		// user.enrichWithRoles(this::enrichWithRole);
+		user.update(dto);
+		UserPO po = (UserPO) repository.save(user);
+		// 不会影响BPM同步，TODO 考虑改成RoleUpdated事件
+		// Context.publishEvent(new EntityUpdatedEvent(convert.poToDto(po)));
+	}
+
     @Override
+	@Command(permission = UserPermissions.UserWrite)
 	public void assignRoles(String userId, String orgId, Set<UserRole> roles) {
         var user = repository.get(userId).orElseThrow();
 		user.enrichWithRoles(this::enrichWithRole);
@@ -93,6 +107,7 @@ class UserServiceImpl extends CrudServiceImpl<User, UserPO, UserDO> implements U
 	// }
 
 	@Override
+	@Command(permission = UserPermissions.UserWrite)
 	public void removeFromOrg(String userId, String orgId) {
 		var user = repository.get(userId).orElseThrow();
 		user.removeFromOrg(orgId);

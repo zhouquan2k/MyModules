@@ -42,12 +42,14 @@ public class UserDO implements DO<UserPO> {
     @Override
     public void update(Object obj) {
 		entityHelper.update(this.state, obj);
+		/* 不对Roles进行变更
 		var user = (User) obj;
-		if (user.getRoles() != null) {
+		if (user.getRoles() != null) { //user.UserRole 转成 entity.UserRole
 			this.state.setRoles(Util.toSet(user.getRoles().stream().map(ur -> {
 				return UserRole.builder().userId(user.getUserId()).roleId(ur.getRoleId()).orgId(ur.getOrgId()).build();
 			})));
 		}
+		 */
     }
 
 	public void updateMyProfile(User user) {

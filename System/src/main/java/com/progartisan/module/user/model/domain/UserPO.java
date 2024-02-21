@@ -40,7 +40,9 @@ public class UserPO extends BaseEntity<UserPO> implements UserDetails, AuthInfo,
     @Meta(value = Type.String, label = "用户编码", updatable = True, searchable = True)
 	private String userCode;
 
-	@Meta(value = Type.ToMany, label = "角色", refData = "roleId,roleName", nullable = False, searchable = True) // UserRole.roleName
+    // 不允许直接update，只能assighRoles，因为多org的原因
+    @Meta(value = Type.ToMany, label = "角色", refData = "roleId,roleName", nullable = False, searchable = True, updatable = False)
+    // UserRole.roleName
 	private Set<UserRole> roles;
 
     @Meta(value = Type.Enum, label = "状态", updatable = True, defaultValue = "Active")
