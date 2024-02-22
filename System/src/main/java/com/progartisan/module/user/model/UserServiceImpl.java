@@ -111,6 +111,7 @@ class UserServiceImpl extends CrudServiceImpl<User, UserPO, UserDO> implements U
 	public void removeFromOrg(String userId, String orgId) {
 		var user = repository.get(userId).orElseThrow();
 		user.removeFromOrg(orgId);
+		user.enrichWithRoles(this::enrichWithRole);
 		var userPO = (UserPO) repository.save(user);
 		Context.publishEvent(new EntityUpdatedEvent(convert.poToDto(userPO)));
 	}
