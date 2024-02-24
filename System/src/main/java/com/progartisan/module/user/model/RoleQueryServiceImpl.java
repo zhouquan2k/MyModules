@@ -19,7 +19,7 @@ class RoleQueryServiceImpl extends QueryServiceImpl<Role, RolePO> implements Rol
     private RoleMapper roleMapper;
 
     public RoleQueryServiceImpl(ConvertRole convert, RoleMapper roleMapper) {
-        super(convert, roleMapper);
+        super(convert, roleMapper, RolePO.class);
         this.roleMapper = roleMapper;
     }
 

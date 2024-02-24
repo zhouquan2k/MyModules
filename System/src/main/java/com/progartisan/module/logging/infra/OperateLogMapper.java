@@ -1,13 +1,13 @@
 package com.progartisan.module.logging.infra;
 
-import java.util.List;
-
+import com.progartisan.component.data.BaseMapper;
+import com.progartisan.component.logging.api.OperateLog;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Results;
 import org.apache.ibatis.annotations.Select;
 
-import com.progartisan.component.data.BaseMapper;
-import com.progartisan.component.logging.api.OperateLog;
+import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface OperateLogMapper extends BaseMapper<OperateLog> {
@@ -20,7 +20,7 @@ public interface OperateLogMapper extends BaseMapper<OperateLog> {
     @Results(id = "Example")
     List<OperateLog> queryAll();
 
-    default List<OperateLog> queryByExample(OperateLog example) {
-        return this.queryByExample(example, selectByExample);
+    default List<OperateLog> queryByExample(Map<String, Object> example) {
+        return this.queryByExample2(OperateLog.class, example, selectByExample, Map.of());
     }
 }
