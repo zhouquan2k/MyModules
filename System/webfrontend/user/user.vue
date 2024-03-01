@@ -7,21 +7,24 @@
           @current-change="roleSelected"></el-tree>
       </el-col>
       <el-col :span="orgId ? 20 : 24">
-        <crud ref="crud" name="UserPO" desc="用户" :apis="apis" :actions="actions" @action="defaultActionProc"
-          :searchParam="{ orgId: orgId }" :searches="searches" :toManySelectData="toManySelectData" :searchVisible="true">
-          <template #buttons>
-            <!--el-button @click="onTest">test</el-button-->
+        <FullTable ref="full-table" entity="UserPO" label="用户"
+          :searches="getEntityFields('UserPO', [{ name: 'user' }, 'userCode', 'status', 'phone', { name: 'role' }])"
+          :columns="[...getEntityFields('UserPO', 'listable'), { name: 'roles', label: '角色' }]"
+          :searchParams="{ userId: userId, roleId: roleId }" :searchMethod="onSearch" :formCols="1" :apis="user_api"
+          :actions="actions" @reset="userId = null; roleId = null;" @assign-role="openAssignRolesDlg"
+          @reset-password="onResetPassword">
+          <template #simple-table_searches-user>
+            <UserSelect v-model="userId" />
           </template>
-          <template #columns>
-            <el-table-column label="角色">
-              <template slot-scope="scope">
-                <el-tag v-for="(item, index) in getUniqueRoleNames(scope.row.roles)" :key="`tag-roles-${index}`">{{
-                  item }}
-                </el-tag>
-              </template>
-            </el-table-column>
+          <template #simple-table_searches-role>
+            <DictionarySelect v-model="roleId" dictionary="Role" placeholder="角色" />
           </template>
-        </crud>
+          <template #simple-table_columns-roles="scope">
+            <el-tag v-for="(item, index) in getUniqueRoleNames(scope.data.roles)" :key="`tag-roles-${index}`">{{
+              item }}
+            </el-tag>
+          </template>
+        </FullTable>
       </el-col>
     </el-row>
     <el-dialog :title="`分配角色 - ${user.username} （${user.loginName}）`" :visible.sync="assignRolesVisible" width="500px"
@@ -45,20 +48,24 @@
 <script>
 import user_api from './user_api.js';
 import role_api from './role_api.js';
-import Crud from '@/components/Crud';
+import FullTable from '@/components/FullTable';
 import { defaultCrudActions, defaultActionProc } from '@/utils/utils';
+import UserSelect from '@user/components/user_select';
+import DictionarySelect from '@/components/dictionary_select.vue';
 
 export default {
   name: 'User',
   components: {
-    Crud,
+    UserSelect, FullTable, DictionarySelect
   },
   props: {
     orgId: {},
   },
   data() {
     return {
-      apis: user_api,
+      user_api,
+      userId: null,
+      roleId: null,
       user: {},
       treeData: [{
         id: null,
@@ -74,12 +81,12 @@ export default {
         defaultCrudActions[0],
         {
           desc: "分配角色",
-          method: 'openAssignRolesDlg',
+          event: 'assign-role',
           permission: ''
         },
         {
           desc: '重置密码',
-          method: 'onResetPassword',
+          event: 'reset-password',
         }, defaultCrudActions[1]
       ],
       searches: {},
@@ -90,7 +97,6 @@ export default {
     };
   },
   methods: {
-    defaultActionProc,
     async onTest() {
       await user_api.test();
     },
@@ -106,11 +112,17 @@ export default {
       this.roles = this.user.roles.map(role => role.roleId); //filter(role => role.orgId == this.orgId || !this.orgId)
       this.assignRolesVisible = true;
     },
+    refresh() {
+      this.$refs['full-table'].refresh();
+    },
     async onAssignRoles() {
       await user_api.assignRoles(this.user.userId, null, this.roles.map(role => ({ roleId: role, orgId: this.orgId })));
       this.assignRolesVisible = false;
-      this.$refs.crud.getList();
+      this.refresh();
       this.$message.success('分配角色成功.')
+    },
+    async onSearch(params) {
+      return await user_api.search(params);
     },
     async onResetPassword(user) {
       try {
@@ -137,7 +149,6 @@ export default {
     else {
       this.allRoles = await role_api.list({ roleType: 'Global' });
     }
-    this.toManySelectData.roles = this.allRoles.map(role => ({ value: { ...role, key: role.roleId, orgId: this.orgId ? this.orgId : role.orgId }, label: role.roleName, key: role.roleId }));
     this.treeData[0].children.push(...this.allRoles.map(role => ({ id: role.roleId, label: role.roleName })));
   }
 };

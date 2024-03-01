@@ -67,6 +67,7 @@ public class UserDO implements DO<UserPO> {
     }
 	
 	public void enrichWithRoles(Function<String, RolePO> func) {
+		if (this.state.getRoles() == null) return;
 		this.state.getRoles().forEach(userRole -> {
 			userRole.setRole(func.apply(userRole.getRoleId()));
 		});

@@ -2,6 +2,7 @@ package com.progartisan.module.user.model.domain;
 
 import com.progartisan.component.common.Util;
 import com.progartisan.component.data.BaseEntity;
+import com.progartisan.component.data.DictionaryItem;
 import com.progartisan.component.meta.Meta;
 import com.progartisan.component.meta.Meta.Category;
 import com.progartisan.component.meta.Meta.Type;
@@ -19,7 +20,7 @@ import static com.progartisan.component.meta.Meta.BooleanEx.True;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @MetaEntity(tableName = "t_role")
-public class RolePO extends BaseEntity<RolePO> {
+public class RolePO extends BaseEntity<RolePO> implements DictionaryItem {
     private static final long serialVersionUID = 1L;
 
     @MetaEntity(tableName = "t_role_permission")
@@ -71,5 +72,21 @@ public class RolePO extends BaseEntity<RolePO> {
 
     public void setPermissions(List<String> permissions) {
         this._permissions = Util.mapToList(permissions.stream(), perm -> new RolePermission(this.roleId, perm));
+    }
+
+    // DictionaryItem
+    @Override
+    public String getType() {
+        return "Role";
+    }
+
+    @Override
+    public Object getValue() {
+        return roleId;
+    }
+
+    @Override
+    public String getLabel() {
+        return roleName;
     }
 }

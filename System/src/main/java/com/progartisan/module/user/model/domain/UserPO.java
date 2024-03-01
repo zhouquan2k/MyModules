@@ -27,7 +27,7 @@ public class UserPO extends BaseEntity<UserPO> implements UserDetails, AuthInfo,
 
     private static final long serialVersionUID = 1L;
 
-	@Meta(value = Type.ID, label = "编号")
+    @Meta(value = Type.ID, label = "编号", searchable = True)
     private String userId;
 
 	@Meta(value = Type.String, label = "登录名", searchable = True, nullable = False, unique = {
