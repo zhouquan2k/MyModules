@@ -35,4 +35,9 @@ public class FileServiceImpl implements FileService {
         // 设置 header 和 contentType
         fileManager.download(id, response);
     }
+
+    @Override
+    public void deleteFile(String id) {
+        fileManager.delete(id);
+    }
 }
