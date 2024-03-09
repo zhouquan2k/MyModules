@@ -1,5 +1,16 @@
 package com.progartisan.module.file.local.model;
 
+import com.progartisan.component.common.Util;
+import com.progartisan.module.file.api.File;
+import com.progartisan.module.file.model.FileManagerSpi;
+import lombok.RequiredArgsConstructor;
+import org.mapstruct.factory.Mappers;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -8,20 +19,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-
-import javax.servlet.http.HttpServletResponse;
-
-import org.mapstruct.factory.Mappers;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.progartisan.component.common.Util;
-import com.progartisan.module.file.api.File;
-import com.progartisan.module.file.model.FileManagerSpi;
-
-import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Component
@@ -92,5 +89,17 @@ public class FileManagerLocalFileSystem implements FileManagerSpi {
             throw new RuntimeException("Error sending file", e);
         }
 
+    }
+
+    @Override
+    public void delete(String id) {
+        FilePO file = repository.findById(id).orElseThrow();
+        Path filePath = resolve(file);
+        try {
+            Files.delete(filePath);
+            repository.delete(file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

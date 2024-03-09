@@ -31,7 +31,7 @@ public class UserPO extends BaseEntity<UserPO> implements UserDetails, AuthInfo,
     private String userId;
 
 	@Meta(value = Type.String, label = "登录名", searchable = True, nullable = False, unique = {
-            "login_name"}, updatable = True)
+            "login_name"}, updatable = True, listable = False)
     private String loginName;
 
 	@Meta(category = Category.PersonName, label = "用户名", nullable = False)
