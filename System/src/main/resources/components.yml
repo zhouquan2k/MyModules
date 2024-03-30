@@ -1,0 +1,62 @@
+components:
+  - name: SimpleTable
+    label: Simple Table
+    category: Others
+    properties:
+      - type: Columns
+        name: columns
+  - name: el-descriptions
+    label: Description
+    category: Others
+    properties:
+      - type: String
+        name: title
+      - type: String
+        name: size
+      - type: Boolean
+        name: colon
+      - type: Boolean
+        name: border
+      - type: Integer
+        name: column
+    child:
+      - el-descriptions-item
+  - label: DescriptionItem
+    name: el-descriptions-item
+    category: Others
+    child:
+      - span
+    slots:
+      - label
+    properties:
+      - name: span
+        type: Integer
+  - name: el-button
+    label: Button
+    category: Form
+    properties:
+    - type: String
+      name: label
+    - type: Boolean
+      name: disabled
+  - name: el-input
+    label: Text Input
+    category: Form
+    properties:
+      - type: String
+        name: placeholder
+      - type: Integer
+        name: maxLength
+  - name: span
+    label: Static Text
+    category: Others
+    properties:
+      - type: String
+        name: text
+  - name: template
+    label: template
+    properties:
+      - type: String
+        name: slot
+      - type: String
+        name: text
