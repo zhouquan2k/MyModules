@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -131,11 +132,11 @@ class VueAst {
        return node;
     }
 
-    Element createElement(Node parent, String tagName, String id) {
+    Element createElement(Node parent, String tagName) {
         var element =  new Element(tagName);
         this._createNode(parent, element);
-        element.id = Util.isEmpty(id) ? getNextId() :id;
-        allNodes.put(element.id, element);
+        // element.id = Util.isEmpty(id) ? getNextId() :id;
+        // allNodes.put(element.id, element);
         return element;
     }
 
@@ -148,6 +149,28 @@ class VueAst {
         for (Node child : node.children) {
             visit(child, visitFunction, newContext);
         }
+    }
+
+    boolean enhanceWithId() throws Exception {
+        AtomicBoolean enhanced = new AtomicBoolean(false);
+        visit((node, context) -> {
+            if (node instanceof Element) {
+                var element = (Element) node;
+                var id = element.getAttributeValue("id");
+                while (Util.isEmpty(id) || allNodes.containsKey(id)) {
+                    id = getNextId();
+                    enhanced.set(true);
+                }
+                element.setAttributeValue("id", element.id);
+                element.id = id;
+                allNodes.put(id, element);
+            }
+            return context;
+        }, null);
+        if (enhanced.get()) {
+            this.save();
+        }
+        return enhanced.get();
     }
 
     String serialize() {

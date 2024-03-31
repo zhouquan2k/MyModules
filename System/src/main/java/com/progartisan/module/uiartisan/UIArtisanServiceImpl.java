@@ -87,12 +87,13 @@ public class UIArtisanServiceImpl implements UIArtisanService {
     public String createWidget(String vueFilePath, String id, CreateWidgetRequest request) throws Exception {
         VueAst ast = parser.parse(vueFilePath);
         var parentNode = ast.getNode(id);
+        Util.check(parentNode != null, "Parent node not found: " + id);
         if (Util.equals(request.category, "slots")) {
-            var element = ast.createElement(parentNode, "template", null);
+            var element = ast.createElement(parentNode, "template");
             element.setAttributeValue("slot", request.type);
         }
         else
-            ast.createElement(parentNode, request.type, null);
+            ast.createElement(parentNode, request.type);
         ast.save();
         return id;
     }

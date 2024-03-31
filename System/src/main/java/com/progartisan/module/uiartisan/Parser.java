@@ -44,6 +44,7 @@ class Parser {
         // AtomicInteger idSerial = new AtomicInteger(0);
         var ast = new VueAst(fullPath, otherParts);
         parseToAst(tree, null, ast);
+        ast.enhanceWithId();
         // ast.setRoot(root);
         return ast;
     }
@@ -60,8 +61,8 @@ class Parser {
         if (node instanceof VueParser.ElementContext) {
             var element = (VueParser.ElementContext) node;
             var name = element.Name(0).getText();
-            // Element astElement = new Element(name);
-            var attributes = Util.toList(element.attribute().stream().flatMap(attribute -> {
+            Element astElement = ast.createElement(parent, name);
+            astElement.attributes = Util.toList(element.attribute().stream().flatMap(attribute -> {
                 var attr = new VueAst.Attribute();
                 if (attribute.attributeName() != null) {
                     attr.name = attribute.attributeName().getText();
@@ -75,11 +76,7 @@ class Parser {
                 }
                 return Stream.of(attr);
             }));
-            var attributeMap = Util.toMap(attributes.stream(), attribute -> attribute.name, attribute -> attribute);
-            var id = attributeMap.getOrDefault("id", new Attribute()).value;
-            Element astElement = ast.createElement(parent, name, id);
-            astElement.attributes = attributes;
-            astElement.attributeMap = attributeMap;
+            astElement.attributeMap = Util.toMap(astElement.attributes.stream(), attribute -> attribute.name, attribute -> attribute);
             astElement.events = Util.toList(element.attribute().stream().flatMap(attribute -> {
                 if (attribute.eventName() != null) {
                     var event = new Event();

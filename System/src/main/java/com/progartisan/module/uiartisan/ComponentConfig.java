@@ -1,5 +1,6 @@
 package com.progartisan.module.uiartisan;
 
+import com.progartisan.component.common.Util;
 import com.progartisan.module.misc.api.Component;
 import com.progartisan.module.misc.api.Component.Property;
 
@@ -23,6 +24,7 @@ class ComponentConfig {
 
     public Property getProperty(String name, String propertyName) {
         Component component = getComponent(name);
+        Util.check(component != null, "Component not found: " + name);
         return component.properties.stream().filter(p -> p.name.equals(propertyName)).findFirst().orElseThrow();
     }
 }
