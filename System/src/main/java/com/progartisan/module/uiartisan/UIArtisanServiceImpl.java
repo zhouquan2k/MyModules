@@ -43,8 +43,9 @@ public class UIArtisanServiceImpl implements UIArtisanService {
                 Element element = (Element) node;
                 Widget widget = new Widget();
                 widget.setName(element.name);
-                widget.setId(element.getAttributeValue("id"));
+                widget.setId(element.id);
                 widget.setProperties(element.attributeMap.entrySet().stream()
+                        .filter(entry -> entry.getValue().value != null)
                         .collect(Collectors.toMap(
                                 entry -> entry.getKey().startsWith(":") ? entry.getKey().substring(1) : entry.getKey(),
                                 entry -> entry.getValue().value)));
