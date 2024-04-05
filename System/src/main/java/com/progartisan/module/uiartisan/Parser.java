@@ -106,8 +106,8 @@ class Parser {
             astNode = ast.createNode(parent, "node");
             var childCount = node.getChildCount();
             if (node instanceof VueParser.ChardataContext) {
-                if (node.getText()!=null && Util.isNotEmpty(node.getText().trim()))
-                    astNode.text = node.getText();
+                if (node.getText() != null)
+                    astNode.text = node.getText().strip();
             }
             else if (childCount > 0) {
                 astNode.children = new ArrayList<>();

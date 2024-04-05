@@ -23,12 +23,13 @@ class VueAst {
         List<Node> children = new ArrayList<Node>();
         Node parent;
 
-        String text="";
+        String text = null;
 
         int level = 0;
 
         String serialize() {
-            return text + String.join("", children.stream().map(Node::serialize).toArray(String[]::new));
+            var levelSpace = "  ".repeat(this.level);
+            return (Util.isNotEmpty(text) ? levelSpace + text + "\n" : "") + String.join("", children.stream().map(Node::serialize).toArray(String[]::new));
         }
     }
 
@@ -72,14 +73,18 @@ class VueAst {
             if (this.id != null) this.setAttributeValue("id", this.id);
             String attributeStr = this.attributes.stream().map(attribute -> {
                 if (attribute.name.equals("text")) return "";
+                if (attribute.value == null) return attribute.name;
                 return attribute.name + "=\"" + attribute.value + "\"";
             }).collect(Collectors.joining(" "));
             String eventStr = this.events.stream().map(event -> {
                 return "@" + event.name + "=\"" + event.value + "\"";
             }).collect(Collectors.joining(" "));
             var levelSpace = "  ".repeat(this.level);
-            if (Util.isNotEmpty(this.text))
+            if (this.text != null) {
+                if (Util.isEmpty(this.text.trim()))
+                    return String.format("%s<%s %s %s />\n", levelSpace, this.name, attributeStr, eventStr);
                 return String.format("%s<%s %s %s>%s</%s>\n", levelSpace, this.name, attributeStr, eventStr, this.text, this.name);
+            }
             return String.format("%s<%s %s %s>\n%s%s</%s>\n", levelSpace, this.name, attributeStr, eventStr, super.serialize(), levelSpace, this.name);
         }
     }
@@ -157,8 +162,11 @@ class VueAst {
             if (node instanceof Element) {
                 var element = (Element) node;
                 var id = element.getAttributeValue("id");
-                while (Util.isEmpty(id) || allNodes.containsKey(id)) {
+                if (Util.isEmpty(id) || id.startsWith("w") && enhanced.get()) {
                     id = getNextId();
+                    while (allNodes.containsKey(id)) {
+                        id = getNextId();
+                    }
                     enhanced.set(true);
                 }
                 element.setAttributeValue("id", element.id);

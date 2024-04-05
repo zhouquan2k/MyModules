@@ -1,4 +1,13 @@
 components:
+  - name: el-table
+    label: Table
+    category: Others
+    child:
+      - el-table-column
+  - name: el-table-column
+    label: Table Column
+    category: Others
+
   - name: SimpleTable
     label: Simple Table
     category: Others
@@ -24,6 +33,9 @@ components:
   - label: DescriptionItem
     name: el-descriptions-item
     category: Others
+    #create:
+    #  - span
+    #  - label
     child:
       - span
     slots:
