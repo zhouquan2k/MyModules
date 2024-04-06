@@ -7,10 +7,23 @@ components:
   - name: el-table-column
     label: Table Column
     category: Others
-
+    properties:
+      - type: String
+        name: label
+        defaultValue: col1
+      - type: String
+        name: prop
+      - type: String
+        name: width
+      - type: Boolean
+        name: fixed
+      - type: Boolean
+        name: sortable
+      - type: Boolean
+        name: resizable
   - name: SimpleTable
     label: Simple Table
-    category: Others
+    category: My
     properties:
       - type: Columns
         name: columns
@@ -33,16 +46,14 @@ components:
   - label: DescriptionItem
     name: el-descriptions-item
     category: Others
-    #create:
-    #  - span
-    #  - label
-    child:
-      - span
-    slots:
-      - label
     properties:
+      - name: label
+        type: String
+        defaultValue: label
       - name: span
         type: Integer
+      - name: text
+        type: String
   - name: el-button
     label: Button
     category: Form
@@ -59,9 +70,17 @@ components:
         name: placeholder
       - type: Integer
         name: maxLength
+  - name: DictionaryTag
+    label: Dictionary Tag
+    category: My
+    properties:
+      - type: AllDictionaries
+        name: dictName
+      - type: String
+        name: value
   - name: span
     label: Static Text
-    category: Others
+    category: Form
     properties:
       - type: String
         name: text
@@ -72,3 +91,11 @@ components:
         name: slot
       - type: String
         name: text
+  - name: el-tag
+    label: Tag
+    category: Form
+    properties:
+      - type: Select:[success,info,warning,danger]
+        name: type
+      - name: text
+        type: String

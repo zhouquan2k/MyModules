@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -66,6 +65,11 @@ class VueAst {
             attribute.value = value;
         }
 
+        public void removeAttribute(String name) {
+            attributeMap.remove(name);
+            attributes.removeIf(attribute -> attribute.name.equals(name));
+        }
+
         List<Attribute> attributes = new ArrayList<>();
         List<Event> events = new ArrayList<>();
 
@@ -80,13 +84,15 @@ class VueAst {
                 return "@" + event.name + "=\"" + event.value + "\"";
             }).collect(Collectors.joining(" "));
             var levelSpace = "  ".repeat(this.level);
-            if (this.text != null) {
-                if (Util.isEmpty(this.text.trim()))
+            if (this.children.size() == 0) {
+                if (this.text == null || Util.isEmpty(this.text.trim()))
                     return String.format("%s<%s %s %s />\n", levelSpace, this.name, attributeStr, eventStr);
                 return String.format("%s<%s %s %s>%s</%s>\n", levelSpace, this.name, attributeStr, eventStr, this.text, this.name);
             }
             return String.format("%s<%s %s %s>\n%s%s</%s>\n", levelSpace, this.name, attributeStr, eventStr, super.serialize(), levelSpace, this.name);
         }
+
+
     }
 
     private final String uiPath;
@@ -98,6 +104,8 @@ class VueAst {
 
     private int nextId = 1;
 
+    private boolean enhanced = false;
+
     Node getNode(String id) {
         return allNodes.get(id);
     }
@@ -107,7 +115,7 @@ class VueAst {
         Util.check(node != null, "Node not found: " + id);
         node.parent.children.removeIf(child -> {
             if (Util.equals(child.type, "element")) {
-                return ((Element) child).id.equals(id);
+                return Util.equals(((Element) child).id, id);
             }
             return false;
         });
@@ -137,11 +145,17 @@ class VueAst {
        return node;
     }
 
+    Element createElementWithId(Node parent, String tagName) {
+        var element = this.createElement(parent, tagName);
+        element.id = getNextId();
+        allNodes.put(element.id, element);
+        return element;
+    }
+
     Element createElement(Node parent, String tagName) {
         var element =  new Element(tagName);
         this._createNode(parent, element);
-        // element.id = Util.isEmpty(id) ? getNextId() :id;
-        // allNodes.put(element.id, element);
+        this.enhanced = true;
         return element;
     }
 
@@ -156,29 +170,29 @@ class VueAst {
         }
     }
 
-    boolean enhanceWithId() throws Exception {
-        AtomicBoolean enhanced = new AtomicBoolean(false);
+    void enhance() throws Exception {
         visit((node, context) -> {
             if (node instanceof Element) {
                 var element = (Element) node;
-                var id = element.getAttributeValue("id");
-                if (Util.isEmpty(id) || id.startsWith("w") && enhanced.get()) {
-                    id = getNextId();
-                    while (allNodes.containsKey(id)) {
+                if (Util.equals(element.name, "template")) {
+                    element.removeAttribute("id");
+                } else {
+                    var id = element.getAttributeValue("id");
+                    if (Util.isEmpty(id) || id.startsWith("w") && enhanced) {
                         id = getNextId();
+                        while (allNodes.containsKey(id)) {
+                            id = getNextId();
+                        }
+                        this.enhanced = true;
                     }
-                    enhanced.set(true);
+                    element.setAttributeValue("id", element.id);
+                    element.id = id;
+                    allNodes.put(id, element);
                 }
-                element.setAttributeValue("id", element.id);
-                element.id = id;
-                allNodes.put(id, element);
             }
             return context;
         }, null);
-        if (enhanced.get()) {
-            this.save();
-        }
-        return enhanced.get();
+        if (this.enhanced) this.save();
     }
 
     String serialize() {

@@ -89,14 +89,28 @@ public class UIArtisanServiceImpl implements UIArtisanService {
         VueAst ast = parser.parse(vueFilePath);
         var parentNode = ast.getNode(id);
         Util.check(parentNode != null, "Parent node not found: " + id);
-        if (Util.equals(request.category, "slots")) {
-            var element = ast.createElement(parentNode, "template");
-            element.setAttributeValue("slot", request.type);
-        }
-        else
-            ast.createElement(parentNode, request.type);
+        var newId = this._createWidget(ast, parentNode, request.type);
         ast.save();
-        return id;
+        return newId;
+    }
+
+    private String _createWidget(VueAst ast, Node parentNode, String type) {
+        var component = componentConfig.getComponent(type);
+        var curNode = ast.createElementWithId(parentNode, type);
+        if (component.properties != null)
+            component.properties.stream().filter(property -> property.defaultValue != null).forEach(property -> {
+                curNode.setAttributeValue(property.name, property.defaultValue);
+            });
+        if (component.child != null)
+            component.child.forEach(child -> {
+                _createWidget(ast, curNode, child);
+            });
+        if (component.slots != null)
+            component.slots.forEach(slot -> {
+                var slotNode = ast.createElement(curNode, "template");
+                slotNode.setAttributeValue("#" + slot, null);
+            });
+        return curNode.id;
     }
 
     // 问题：text没有id，无法定位更新，只能作为widget的属性

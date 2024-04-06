@@ -44,7 +44,7 @@ class Parser {
         // AtomicInteger idSerial = new AtomicInteger(0);
         var ast = new VueAst(fullPath, otherParts);
         parseToAst(tree, null, ast);
-        ast.enhanceWithId();
+        ast.enhance();
         // ast.setRoot(root);
         return ast;
     }
@@ -89,38 +89,51 @@ class Parser {
             astNode = astElement;
             if (element.content() != null) {
                 var childCount = element.content().getChildCount();
+                var childNodes = new ArrayList<Node>();
                 for (int i = 0; i < childCount; i++) {
                     var child = element.content().getChild(i);
                     var childNode = parseToAst( child, astElement, ast);
-                    if (element.content().getChildCount() == 1 && childNode.type.equals("node") && childNode.text!= null) {
-                        astElement.text = (childNode.text != null)? childNode.text.trim() : null;
-                        astElement.children.remove(childNode);
+                    if (childNode != null) {
+                        childNodes.add(childNode);
                     }
                 }
+                // 唯一子节点是一个text，则设为上级节点的text属性
+                if (childNodes.size() == 1 && childNodes.get(0).type.equals("text")) {
+                    var childNode = childNodes.get(0);
+                    astElement.text = (childNode.text != null) ? childNode.text.strip() : null;
+                    astElement.children.remove(childNode);
+                    childNodes.remove(childNode);
+                }
+                childNodes.stream().filter(childNode -> childNode != null && childNode.type.equals("text")).forEach(childNode -> {
+                    var spanElement = ast.createElement(astElement, "span");
+                    spanElement.text = childNode.text;
+                    astElement.children.remove(childNode);
+                });
             }
             if (Util.isNotEmpty(astElement.text)) {
                 astElement.setAttributeValue("text", astElement.text);
             }
         }
         else {
-            astNode = ast.createNode(parent, "node");
             var childCount = node.getChildCount();
             if (node instanceof VueParser.ChardataContext) {
-                if (node.getText() != null)
-                    astNode.text = node.getText().strip();
-            }
-            else if (childCount > 0) {
-                astNode.children = new ArrayList<>();
-                for (int i = 0; i < node.getChildCount(); i++) {
-                    var child = node.getChild(i);
-                    var childNode = parseToAst(child, astNode, ast);
-                    if (childNode.type.equals("node") && childNode.text == null) {
-                        astNode.children.remove(childNode);
-                    }
+                var text = node.getText();
+                if (text != null && Util.isNotEmpty(text.strip())) {
+                    astNode = ast.createNode(parent, "text");
+                    astNode.text = text.strip();
                 }
             }
-            else
-                astNode.text = node.getText();
+            else if (childCount > 0) {
+                // var children = new ArrayList<>();
+                for (int i = 0; i < node.getChildCount(); i++) {
+                    var child = node.getChild(i);
+                    // var childNode =
+                    parseToAst(child, astNode, ast);
+                    // if (childNode.type.equals("node") && childNode.text == null) {
+                    //    astNode.children.remove(childNode);
+                    //}
+                }
+            }
         }
         return astNode;
     }
