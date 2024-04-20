@@ -49,6 +49,11 @@ public class MiscServiceImpl implements com.progartisan.module.misc.api.MiscServ
     }
 
     @Override
+    public void testException() {
+        Util.check(false, "check failure");
+    }
+
+    @Override
     public Metadata.EntityDef getEntityMetadata(String entityName) {
         return metadataProvider.getEntityDef(entityName);
     }
