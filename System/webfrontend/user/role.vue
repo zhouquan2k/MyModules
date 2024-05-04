@@ -1,7 +1,8 @@
 <template>
   <div>
     <crud ref="crud" name="RolePO" desc="角色" :apis="apis" :actions="actions" @action="defaultActionProc" />
-    <el-dialog :title="`分配功能权限 - ${role.roleName}`" :visible.sync="assignPermissionsVisible" width="500px" append-to-body>
+    <el-dialog :title="`分配功能权限 - ${role.roleName}`" :visible.sync="assignPermissionsVisible" width="500px"
+      append-to-body>
       <el-form label-width="80px">
         <el-form-item>
           <!--el-checkbox v-model="menuExpand" @change="handleCheckedTreeExpand($event, 'menu')">展开/折叠</el-checkbox>
@@ -60,7 +61,7 @@ export default {
         const functions = await role_api.getAllFunctions();
         functions.forEach(func => {
           for (var perm of func.permissions) {
-            perm.name = `${func.name}.${perm.name}`;
+            perm.name = `${func.permissionDomain}.${perm.name}`;
           }
         });
         this.functions = functions;
