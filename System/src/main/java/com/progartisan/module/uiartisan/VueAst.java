@@ -174,9 +174,10 @@ class VueAst {
         visit((node, context) -> {
             if (node instanceof Element) {
                 var element = (Element) node;
-                if (Util.equals(element.name, "template")) {
-                    element.removeAttribute("id");
-                } else {
+                // if (Util.equals(element.name, "template")) {
+                // element.removeAttribute("id");
+                // } else {
+                {
                     var id = element.getAttributeValue("id");
                     if (Util.isEmpty(id) || id.startsWith("w") && enhanced) {
                         id = getNextId();

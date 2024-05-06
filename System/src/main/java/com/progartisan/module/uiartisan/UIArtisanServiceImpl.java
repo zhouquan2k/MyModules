@@ -3,7 +3,9 @@ package com.progartisan.module.uiartisan;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.progartisan.component.common.Util;
+import com.progartisan.component.framework.Metadata.FieldDef;
 import com.progartisan.component.framework.Service;
+import com.progartisan.component.spi.MetadataProvider;
 import com.progartisan.module.misc.api.Component;
 import com.progartisan.module.misc.api.UIArtisanService;
 import com.progartisan.module.misc.api.Widget;
@@ -28,6 +30,7 @@ public class UIArtisanServiceImpl implements UIArtisanService {
 
     final private ResourceLoader resourceLoader;
     final private Parser parser;
+    final private MetadataProvider metadataProvider;
 
     static class ParseContext {
         Widget parent = new Widget();
@@ -42,7 +45,13 @@ public class UIArtisanServiceImpl implements UIArtisanService {
             if (Util.equals(node.type, "element")) {
                 Element element = (Element) node;
                 Widget widget = new Widget();
+                widget.setType(element.name);
                 widget.setName(element.name);
+                if (Util.equals(element.name, "template")) {
+                    element.attributes.stream().filter(attr -> attr.name.startsWith("#")).findFirst().ifPresent(attr -> {
+                        widget.setName(String.format("template (%s)", attr.name.substring(1)));
+                    });
+                }
                 widget.setId(element.id);
                 widget.setProperties(element.attributeMap.entrySet().stream()
                         .filter(entry -> entry.getValue().value != null)
@@ -89,21 +98,41 @@ public class UIArtisanServiceImpl implements UIArtisanService {
         VueAst ast = parser.parse(vueFilePath);
         var parentNode = ast.getNode(id);
         Util.check(parentNode != null, "Parent node not found: " + id);
-        var newId = this._createWidget(ast, parentNode, request.type);
+        FieldDef fieldDef = null;
+        if (request.meta != null) {
+            fieldDef = getFieldDefFromMeta(request.meta).clone();
+            fieldDef.setName(request.meta.substring(request.meta.indexOf(".") + 1));
+        }
+        var newId = this._createWidget(ast, parentNode, request.type, fieldDef);
         ast.save();
         return newId;
     }
 
-    private String _createWidget(VueAst ast, Node parentNode, String type) {
+    private FieldDef getFieldDefFromMeta(String meta) {
+        var entityPart = meta.substring(0, meta.lastIndexOf("."));
+        var fieldPart = meta.substring(meta.lastIndexOf(".") + 1);
+        if (entityPart.indexOf(".") < 0) {
+            return metadataProvider.getEntityDefByName(entityPart).getFields().stream().filter(field -> Util.equals(field.getName(), fieldPart))
+                    .findFirst().orElseThrow();
+        } else {
+            var entityPartDef = getFieldDefFromMeta(entityPart);
+            return metadataProvider.getEntityDefByName(entityPartDef.getTypeName()).getFields().stream().filter(field -> Util.equals(field.getName(), fieldPart))
+                    .findFirst().orElseThrow();
+        }
+    }
+
+    private String _createWidget(VueAst ast, Node parentNode, String type, FieldDef meta) {
         var component = componentConfig.getComponent(type);
         var curNode = ast.createElementWithId(parentNode, type);
-        if (component.properties != null)
-            component.properties.stream().filter(property -> property.defaultValue != null).forEach(property -> {
+        if (meta != null) component = processMeta(meta, component);
+        if (component.getProperties() != null)
+            // applying default value
+            component.getProperties().stream().filter(property -> property.defaultValue != null).forEach(property -> {
                 curNode.setAttributeValue(property.name, property.defaultValue);
             });
         if (component.child != null)
             component.child.forEach(child -> {
-                _createWidget(ast, curNode, child);
+                _createWidget(ast, curNode, child, null);
             });
         if (component.slots != null)
             component.slots.forEach(slot -> {
@@ -111,6 +140,16 @@ public class UIArtisanServiceImpl implements UIArtisanService {
                 slotNode.setAttributeValue("#" + slot, null);
             });
         return curNode.id;
+    }
+
+    private Component processMeta(FieldDef meta, Component component) {
+        if (Util.equals(component.name, "el-table-column")) {
+            var newComponent = component.clone();
+            newComponent.setPropertyDefaultValue("prop", meta.getName());
+            newComponent.setPropertyDefaultValue("label", meta.getLabel());
+            return newComponent;
+        }
+        return component;
     }
 
     // 问题：text没有id，无法定位更新，只能作为widget的属性

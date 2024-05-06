@@ -27,6 +27,11 @@ components:
     properties:
       - type: Columns
         name: columns
+    slots:
+      - columns
+      - searches
+      - actions
+      - buttons
   - name: el-descriptions
     label: Description
     category: Others

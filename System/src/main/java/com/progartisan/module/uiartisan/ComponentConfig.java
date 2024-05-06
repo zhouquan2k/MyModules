@@ -25,6 +25,6 @@ class ComponentConfig {
     public Property getProperty(String name, String propertyName) {
         Component component = getComponent(name);
         Util.check(component != null, "Component not found: " + name);
-        return component.properties.stream().filter(p -> p.name.equals(propertyName)).findFirst().orElseThrow();
+        return component.getProperties().stream().filter(p -> p.name.equals(propertyName)).findFirst().orElseThrow();
     }
 }

@@ -1,5 +1,6 @@
 package com.progartisan.module.uiartisan;
 
+import com.progartisan.component.spi.MetadataProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,11 +19,13 @@ public class TestUIArtisanService {
 
         @Autowired
         ResourceLoader resourceLoader;
+        @Autowired
+        MetadataProvider metadataProvider;
 
         @Bean
         public UIArtisanServiceImpl uiArtisanService() {
             Parser parser = new Parser();
-            return new UIArtisanServiceImpl(resourceLoader, parser);
+            return new UIArtisanServiceImpl(resourceLoader, parser, metadataProvider);
         }
     }
 
