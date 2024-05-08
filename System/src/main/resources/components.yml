@@ -25,13 +25,14 @@ components:
     label: Simple Table
     category: My
     properties:
-      - type: Columns
-        name: columns
+      - type: AllEntities
+        name: entity
     slots:
-      - columns
-      - searches
-      - actions
-      - buttons
+      - name: columns
+        type: el-table-column
+      - name: searches
+      - name: actions
+      - name: buttons
   - name: el-descriptions
     label: Description
     category: Others
@@ -75,6 +76,40 @@ components:
         name: placeholder
       - type: Integer
         name: maxLength
+      - type: String
+        name: v-model
+  - name: el-date-picker
+    label: Date Picker
+    category: Form
+    properties:
+      - type: String
+        name: placeholder
+      - type: String
+        name: v-model
+      - type: String
+        name: type
+      - type: String
+        name: range-separator
+      - type: String
+        name: start-placeholder
+      - type: String
+        name: end-placeholder
+  - name: DictionarySelect
+    label: Dictionary Select
+    category: My
+    properties:
+      - type: AllDictionaries
+        name: dictionary
+      - type: String
+        name: placeholder
+      - type: Boolean
+        name: multiple
+      - type: Boolean
+        name: clearable
+      - type: Boolean
+        name: collapse-tags
+      - type: String
+        name: v-model
   - name: DictionaryTag
     label: Dictionary Tag
     category: My

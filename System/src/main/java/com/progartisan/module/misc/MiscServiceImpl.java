@@ -45,7 +45,8 @@ public class MiscServiceImpl implements com.progartisan.module.misc.api.MiscServ
                 "* inputDate", date.inputDate,
                 "inputDateStr UTC", dateFormat1.format(date.inputDate),
                 "inputDateStr Local", dateFormat2.format(date.inputDate),
-                "* inputDate2", date.inputDate2);
+                "* inputDate2", date.inputDate2,
+                "TZ", Context.getTimezone());
     }
 
     @Override

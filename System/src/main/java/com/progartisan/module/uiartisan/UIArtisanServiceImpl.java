@@ -5,6 +5,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.progartisan.component.common.Util;
 import com.progartisan.component.framework.Metadata.FieldDef;
 import com.progartisan.component.framework.Service;
+import com.progartisan.component.meta.Meta;
 import com.progartisan.component.spi.MetadataProvider;
 import com.progartisan.module.misc.api.Component;
 import com.progartisan.module.misc.api.UIArtisanService;
@@ -16,6 +17,7 @@ import javax.annotation.PostConstruct;
 import javax.inject.Named;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.progartisan.module.uiartisan.VueAst.Element;
@@ -47,17 +49,18 @@ public class UIArtisanServiceImpl implements UIArtisanService {
                 Widget widget = new Widget();
                 widget.setType(element.name);
                 widget.setName(element.name);
-                if (Util.equals(element.name, "template")) {
-                    element.attributes.stream().filter(attr -> attr.name.startsWith("#")).findFirst().ifPresent(attr -> {
-                        widget.setName(String.format("template (%s)", attr.name.substring(1)));
-                    });
-                }
                 widget.setId(element.id);
                 widget.setProperties(element.attributeMap.entrySet().stream()
                         .filter(entry -> entry.getValue().value != null)
                         .collect(Collectors.toMap(
                                 entry -> entry.getKey().startsWith(":") ? entry.getKey().substring(1) : entry.getKey(),
                                 entry -> entry.getValue().value)));
+                if (Util.equals(element.name, "template")) {
+                    element.attributes.stream().filter(attr -> attr.name.startsWith("#")).findFirst().ifPresent(attr -> {
+                        widget.setName(String.format("template (%s)", attr.name.substring(1)));
+                        widget.setProperty("slot", attr.name.substring(1));
+                    });
+                }
                 ((Widget) parent).getChildren().add(widget);
                 parent = widget;
             }
@@ -122,13 +125,16 @@ public class UIArtisanServiceImpl implements UIArtisanService {
     }
 
     private String _createWidget(VueAst ast, Node parentNode, String type, FieldDef meta) {
-        var component = componentConfig.getComponent(type);
-        var curNode = ast.createElementWithId(parentNode, type);
-        if (meta != null) component = processMeta(meta, component);
+        var component = meta == null ? componentConfig.getComponent(type)
+                : fromMeta(parentNode, type, meta);
+        var curNode = ast.createElementWithId(parentNode, component.name);
         if (component.getProperties() != null)
             // applying default value
             component.getProperties().stream().filter(property -> property.defaultValue != null).forEach(property -> {
-                curNode.setAttributeValue(property.name, property.defaultValue);
+                if (Set.of("Boolean").contains(property.type))
+                    curNode.setAttributeValue(":" + property.name, property.defaultValue);
+                else
+                    curNode.setAttributeValue(property.name, property.defaultValue);
             });
         if (component.child != null)
             component.child.forEach(child -> {
@@ -137,19 +143,62 @@ public class UIArtisanServiceImpl implements UIArtisanService {
         if (component.slots != null)
             component.slots.forEach(slot -> {
                 var slotNode = ast.createElement(curNode, "template");
-                slotNode.setAttributeValue("#" + slot, null);
+                slotNode.setAttributeValue("#" + slot.name, "scope");
             });
         return curNode.id;
     }
 
-    private Component processMeta(FieldDef meta, Component component) {
-        if (Util.equals(component.name, "el-table-column")) {
-            var newComponent = component.clone();
+    private Component fromMeta(Node parentNode, String type, FieldDef meta) {
+        Element el = (Element) parentNode;
+        Component ret = null;
+        String requiredType = null;
+        if (Util.equals(el.name, "template")) {
+            var parentElement = (Element) el.parent;
+            var parentComponent = componentConfig.getComponent(parentElement.name);
+            var slotName = el.attributes.stream().filter(attr -> attr.name.startsWith("#")).findFirst().orElseThrow().name.substring(1);
+            var slot = parentComponent.slots.stream().filter(s -> Util.equals(s.name, slotName)).findFirst().orElseThrow();
+            requiredType = slot.type;
+        }
+        if (Util.equals(type, "el-table-column") || Util.equals(requiredType, "el-table-column")) {
+            var newComponent = componentConfig.getComponent("el-table-column").clone();
             newComponent.setPropertyDefaultValue("prop", meta.getName());
             newComponent.setPropertyDefaultValue("label", meta.getLabel());
-            return newComponent;
+            ret = newComponent;
+        } else if (Util.equals(type, "?")) {
+            // guess type by meta
+            // TODO event?
+            if (meta.getType() == Meta.Type.String) {
+                var newComponent = componentConfig.getComponent("el-input").clone();
+                newComponent.setPropertyDefaultValue("placeholder", meta.getLabel());
+                newComponent.setPropertyDefaultValue("v-model", "scope.data." + meta.getName());
+                ret = newComponent;
+            } else if (meta.getType() == Meta.Type.Enum || meta.getType() == Meta.Type.Dictionary) {
+                var newComponent = componentConfig.getComponent("DictionarySelect").clone();
+                newComponent.setPropertyDefaultValue("placeholder", meta.getLabel());
+                newComponent.setPropertyDefaultValue("v-model", "scope.data." + meta.getName());
+                newComponent.setPropertyDefaultValue("dictionary", meta.getType() == Meta.Type.Enum ? meta.getTypeName() : meta.getRefData());
+                newComponent.setPropertyDefaultValue("multiple", "true");
+                newComponent.setPropertyDefaultValue("clearable", "true");
+                newComponent.setPropertyDefaultValue("collapse-tags", "true");
+                ret = newComponent;
+            } else if (meta.getType() == Meta.Type.Date || meta.getType() == Meta.Type.Timestamp) {
+                var newComponent = componentConfig.getComponent("el-date-picker").clone();
+                newComponent.setPropertyDefaultValue("type", "datarange");
+                newComponent.setPropertyDefaultValue("range-separator", "-");
+                newComponent.setPropertyDefaultValue("start-placeholder", "开始");
+                newComponent.setPropertyDefaultValue("end-placeholder", "结束 " + meta.getLabel());
+                newComponent.setPropertyDefaultValue("v-model", "scope.data." + meta.getName());
+                ret = newComponent;
+            }
+            Util.check(ret != null, String.format("Component not found: meta %s", meta.getType()));
+            ret.setPropertyDefaultValue("meta", meta.getName());
         }
-        return component;
+        // type specified
+        else
+            ret = componentConfig.getComponent(type);
+
+        Util.check(ret != null, String.format("Component not found: %s", type));
+        return ret;
     }
 
     // 问题：text没有id，无法定位更新，只能作为widget的属性

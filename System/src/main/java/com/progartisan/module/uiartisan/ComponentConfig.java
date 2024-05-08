@@ -16,6 +16,9 @@ class ComponentConfig {
 
     public void init() {
         componentMap = components.stream().collect(Collectors.toMap(c -> c.name, c -> c));
+        components.forEach(c -> {
+            c.init();
+        });
     }
 
     public Component getComponent(String name) {
