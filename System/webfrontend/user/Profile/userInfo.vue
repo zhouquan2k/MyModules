@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import userApi from "../user_api";
+import { userApi } from "../user_api";
 
 export default {
   props: {

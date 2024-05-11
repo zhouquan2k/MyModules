@@ -67,7 +67,7 @@ import userAvatar from "./userAvatar";
 import userInfo from "./userInfo";
 import resetPwd from "./resetPwd";
 //import userSocial from "./userSocial";
-import userApi from "../user_api";
+import { userApi } from "../user_api";
 
 export default {
   name: "Profile",

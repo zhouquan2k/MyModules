@@ -7,7 +7,7 @@
 </template>
 <script>
 import pinyin from "pinyin";
-import userApi from '@user/user_api';
+import { userApi } from '@user/user_api';
 
 export default {
     model: {
