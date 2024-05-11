@@ -15,6 +15,7 @@ import org.springframework.core.io.ResourceLoader;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Named;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,10 +47,16 @@ public class UIArtisanServiceImpl implements UIArtisanService {
             // convert element to widget
             if (Util.equals(node.type, "element")) {
                 Element element = (Element) node;
+                var component = componentConfig.getComponent(element.name);
+                String meta = element.getAttributeValue("meta");
                 Widget widget = new Widget();
                 widget.setType(element.name);
                 widget.setName(element.name);
                 widget.setId(element.id);
+                if (component != null) {
+                    widget.setName(String.format("%s%s", component.label, Util.isNotEmpty(meta) ? String.format(" (%s)", meta) : ""));
+                    if (Util.isNotEmpty(component.icon)) widget.setIcon(component.icon);
+                }
                 widget.setProperties(element.attributeMap.entrySet().stream()
                         .filter(entry -> entry.getValue().value != null)
                         .collect(Collectors.toMap(
@@ -57,11 +64,11 @@ public class UIArtisanServiceImpl implements UIArtisanService {
                                 entry -> entry.getValue().value)));
                 if (Util.equals(element.name, "template")) {
                     element.attributes.stream().filter(attr -> attr.name.startsWith("#")).findFirst().ifPresent(attr -> {
-                        widget.setName(String.format("template (%s)", attr.name.substring(1)));
+                        widget.setName(String.format("(%s)", attr.name.substring(1)));
                         widget.setProperty("slot", attr.name.substring(1));
                     });
                 }
-                ((Widget) parent).getChildren().add(widget);
+                ((Widget) parent).addChild(widget);
                 parent = widget;
             }
             return parent;
@@ -97,18 +104,31 @@ public class UIArtisanServiceImpl implements UIArtisanService {
     }
 
     @Override
-    public String createWidget(String vueFilePath, String id, CreateWidgetRequest request) throws Exception {
+    public String createWidget(String vueFilePath, String id, List<CreateWidgetRequest> requests) throws Exception {
         VueAst ast = parser.parse(vueFilePath);
         var parentNode = ast.getNode(id);
         Util.check(parentNode != null, "Parent node not found: " + id);
-        FieldDef fieldDef = null;
-        if (request.meta != null) {
-            fieldDef = getFieldDefFromMeta(request.meta).clone();
-            fieldDef.setName(request.meta.substring(request.meta.indexOf(".") + 1));
-        }
-        var newId = this._createWidget(ast, parentNode, request.type, fieldDef);
+        Util.check(requests.size() > 0);
+        var newIds = new ArrayList<String>();
+        requests.forEach(request -> {
+            FieldDef fieldDef = null;
+            boolean isExist = false;
+            if (request.meta != null) {
+                fieldDef = getFieldDefFromMeta(request.meta).clone();
+                fieldDef.setName(request.meta.substring(request.meta.indexOf(".") + 1));
+                isExist = parentNode.children.stream().filter(node -> node instanceof Element)
+                        .map(node -> (Element) node)
+                        .filter(node -> Util.equals(node.getAttributeValue("meta"), request.meta.substring(request.meta.indexOf(".") + 1)))
+                        .findFirst().isPresent();
+            }
+            // check if it's already exists with the same meta
+            if (!isExist) {
+                var newId = this._createWidget(ast, parentNode, request.type, fieldDef);
+                newIds.add(newId);
+            }
+        });
         ast.save();
-        return newId;
+        return newIds.get(0);
     }
 
     private FieldDef getFieldDefFromMeta(String meta) {
@@ -148,6 +168,8 @@ public class UIArtisanServiceImpl implements UIArtisanService {
         return curNode.id;
     }
 
+    // entity wizard
+    // TODO 如何创建更复杂的层次：如el-col, el-form-item, el-input
     private Component fromMeta(Node parentNode, String type, FieldDef meta) {
         Element el = (Element) parentNode;
         Component ret = null;
@@ -164,6 +186,7 @@ public class UIArtisanServiceImpl implements UIArtisanService {
             newComponent.setPropertyDefaultValue("prop", meta.getName());
             newComponent.setPropertyDefaultValue("label", meta.getLabel());
             ret = newComponent;
+            ret.setPropertyDefaultValue("meta", meta.getName());
         } else if (Util.equals(type, "?")) {
             // guess type by meta
             // TODO event?
@@ -185,8 +208,8 @@ public class UIArtisanServiceImpl implements UIArtisanService {
                 var newComponent = componentConfig.getComponent("el-date-picker").clone();
                 newComponent.setPropertyDefaultValue("type", "datarange");
                 newComponent.setPropertyDefaultValue("range-separator", "-");
-                newComponent.setPropertyDefaultValue("start-placeholder", "开始");
-                newComponent.setPropertyDefaultValue("end-placeholder", "结束 " + meta.getLabel());
+                newComponent.setPropertyDefaultValue("start-placeholder", meta.getLabel() + "开始");
+                newComponent.setPropertyDefaultValue("end-placeholder", "结束");
                 newComponent.setPropertyDefaultValue("v-model", "scope.data." + meta.getName());
                 ret = newComponent;
             }
@@ -199,6 +222,20 @@ public class UIArtisanServiceImpl implements UIArtisanService {
 
         Util.check(ret != null, String.format("Component not found: %s", type));
         return ret;
+    }
+
+    @Override
+    public void moveWidget(String vueFilePath, String id, MoveWidgetRequest request) throws Exception {
+        VueAst ast = parser.parse(vueFilePath);
+        Node node = ast.getNode(id);
+        Util.check(node != null, "Node not found: " + id);
+        Node droppedNode = ast.getNode(request.droppedId);
+        // TODO 目前只能在同父下移动，调整顺序
+        Util.check(node.parent == droppedNode.parent, "Not same parent");
+        node.parent.children.remove(node);
+        node.parent.children.add(node.parent.children.indexOf(droppedNode) +
+                (Util.equals(request.droppedType, "after") ? 1 : 0), node);
+        ast.save();
     }
 
     // 问题：text没有id，无法定位更新，只能作为widget的属性

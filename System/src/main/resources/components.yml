@@ -1,11 +1,13 @@
 components:
   - name: el-table
     label: Table
+    icon: el-icon-s-grid
     category: Others
     child:
       - el-table-column
   - name: el-table-column
-    label: Table Column
+    label: TableCol
+    icon: el-icon-s-data
     category: Others
     properties:
       - type: String
@@ -22,7 +24,8 @@ components:
       - type: Boolean
         name: resizable
   - name: SimpleTable
-    label: Simple Table
+    label: SimpleTable
+    icon: el-icon-s-grid
     category: My
     properties:
       - type: AllEntities
@@ -62,14 +65,18 @@ components:
         type: String
   - name: el-button
     label: Button
+    icon: el-icon-turn-off
     category: Form
     properties:
     - type: String
       name: label
     - type: Boolean
       name: disabled
+    - type: String
+      name: text
   - name: el-input
-    label: Text Input
+    label: TextInput
+    icon: el-icon-edit-outline
     category: Form
     properties:
       - type: String
@@ -79,7 +86,8 @@ components:
       - type: String
         name: v-model
   - name: el-date-picker
-    label: Date Picker
+    label: Date
+    icon: el-icon-date
     category: Form
     properties:
       - type: String
@@ -95,7 +103,8 @@ components:
       - type: String
         name: end-placeholder
   - name: DictionarySelect
-    label: Dictionary Select
+    label: DictSelect
+    icon: el-icon-s-unfold
     category: My
     properties:
       - type: AllDictionaries
@@ -111,7 +120,7 @@ components:
       - type: String
         name: v-model
   - name: DictionaryTag
-    label: Dictionary Tag
+    label: DictTag
     category: My
     properties:
       - type: AllDictionaries
@@ -119,13 +128,15 @@ components:
       - type: String
         name: value
   - name: span
-    label: Static Text
+    icon: el-icon-chat-line-square
+    label: Static
     category: Form
     properties:
       - type: String
         name: text
   - name: template
-    label: template
+    label:
+    icon: el-icon-folder-add
     properties:
       - type: String
         name: slot
