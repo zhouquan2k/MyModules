@@ -28,7 +28,7 @@ export default {
     },
     methods: {
         async onSelect(obj) {
-            this.$emit('change', obj);
+            this.$emit('change', !obj || obj == '' ? null : obj);
         },
         filterMethod(val, param) {
             if (val && val != ' ') {

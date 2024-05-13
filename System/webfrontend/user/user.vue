@@ -10,8 +10,8 @@
         <FullTable ref="full-table" entity="UserPO" label="用户"
           :searches="getEntityFields('UserPO', [{ name: 'user' }, 'userCode', 'status', 'phone', { name: 'role' }])"
           :columns="[...getEntityFields('UserPO', 'listable'), { name: 'roles', label: '角色' }]"
-          :searchParams="{ userId: userId, roleId: roleId }" :searchMethod="onSearch" :formCols="1" :apis="user_api"
-          :actions="actions" @reset="userId = null; roleId = null;" @assign-role="openAssignRolesDlg"
+          :fixedSearchParams="{ userId: userId, roleId: roleId }" :searchMethod="onSearch" :formCols="1"
+          :apis="user_api" :actions="actions" @reset="userId = null; roleId = null;" @assign-role="openAssignRolesDlg"
           @reset-password="onResetPassword">
           <template #simple-table_searches-user>
             <UserSelect v-model="userId" />
@@ -21,7 +21,7 @@
           </template>
           <template #simple-table_columns-roles="scope">
             <el-tag v-for="(item, index) in getUniqueRoleNames(scope.data.roles)" :key="`tag-roles-${index}`">{{
-              item }}
+        item }}
             </el-tag>
           </template>
         </FullTable>
@@ -33,7 +33,7 @@
         <el-form-item>
           <el-checkbox-group v-model="roles">
             <el-checkbox v-for="role in allRoles" :label="role.roleId" :key="role.roleId">{{ role.roleName
-            }}</el-checkbox>
+              }}</el-checkbox>
           </el-checkbox-group>
         </el-form-item>
       </el-form>
@@ -46,7 +46,7 @@
 </template>
 
 <script>
-import user_api from './user_api.js';
+import { userApi as user_api } from './user_api.js';
 import role_api from './role_api.js';
 import FullTable from '@/components/FullTable';
 import { defaultCrudActions, defaultActionProc } from '@/utils/utils';
