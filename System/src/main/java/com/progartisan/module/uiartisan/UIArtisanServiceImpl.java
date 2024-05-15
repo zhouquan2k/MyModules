@@ -169,7 +169,6 @@ public class UIArtisanServiceImpl implements UIArtisanService {
     }
 
     // entity wizard
-    // TODO 如何创建更复杂的层次：如el-col, el-form-item, el-input
     private Component fromMeta(Node parentNode, String type, FieldDef meta) {
         Element el = (Element) parentNode;
         Component ret = null;
@@ -187,7 +186,12 @@ public class UIArtisanServiceImpl implements UIArtisanService {
             newComponent.setPropertyDefaultValue("label", meta.getLabel());
             ret = newComponent;
             ret.setPropertyDefaultValue("meta", meta.getName());
-        } else if (Util.equals(type, "?")) {
+        } else if (el.name.equals("DetailForm")) {
+            var newComponent = componentConfig.getComponent("SingleEditor").clone();
+            newComponent.setPropertyDefaultValue("meta", meta.getName());
+            ret = newComponent;
+        } else if (Util.equals(type, "?")) // for search
+        {
             // guess type by meta
             // TODO event?
             if (meta.getType() == Meta.Type.String) {

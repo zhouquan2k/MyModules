@@ -28,14 +28,33 @@ components:
     icon: el-icon-s-grid
     category: My
     properties:
-      - type: AllEntities
-        name: entity
     slots:
       - name: columns
         type: el-table-column
       - name: searches
       - name: actions
       - name: buttons
+  - name: DetailForm
+    label: Form
+    icon: el-icon-s-order
+    category: My
+    properties:
+      - name: formCols
+        type: Integer
+        defaultValue: 1
+    child:
+      - SingleEditor
+  - name: SingleEditor
+    label: Editor
+    icon: el-icon-edit
+    category: My
+    properties:
+      - type: String
+        name: label
+      - type: String
+        name: type
+      - name: name
+        type: String
   - name: el-descriptions
     label: Description
     category: Others
