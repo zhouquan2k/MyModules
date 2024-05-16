@@ -83,7 +83,7 @@ class VueAst {
             String eventStr = this.events.stream().map(event -> {
                 return "@" + event.name + "=\"" + event.value + "\"";
             }).collect(Collectors.joining(" "));
-            var levelSpace = "  ".repeat(this.level);
+            var levelSpace = "    ".repeat(this.level);
             if (this.children.size() == 0) {
                 if (this.text == null || Util.isEmpty(this.text.trim()))
                     return String.format("%s<%s %s %s />\n", levelSpace, this.name, attributeStr, eventStr);

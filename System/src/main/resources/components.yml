@@ -42,6 +42,8 @@ components:
       - name: formCols
         type: Integer
         defaultValue: 1
+      - name: formStyle
+        type: String
     child:
       - SingleEditor
   - name: SingleEditor
