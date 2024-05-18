@@ -45,8 +45,8 @@ public class UserPO extends BaseEntity<UserPO> implements UserDetails, AuthInfo,
     // UserRole.roleName
 	private Set<UserRole> roles;
 
-    @Meta(value = Type.Enum, label = "状态", updatable = True, defaultValue = "'Active'")
-	private UserStatus status;
+    @Meta(value = Type.Enum, label = "状态", updatable = True)
+    private UserStatus status = UserStatus.Active;
 
 	@Meta(label = "密码", category = Category.Password)
     private String password;
