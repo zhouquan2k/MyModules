@@ -37,7 +37,8 @@ export default {
                         style: pinyin.STYLE_FIRST_LETTER
                     }).join('');
                     // 检查输入的拼音首字母是否匹配
-                    return optionPinyin.indexOf(val.toLowerCase()) === 0;
+                    return optionPinyin.indexOf(val.toLowerCase()) === 0 || item.userCode?.indexOf(val) > -1
+                        || item.username.indexOf(val) > -1;
                 });
             } else {
                 this.users = this.allUsers;
