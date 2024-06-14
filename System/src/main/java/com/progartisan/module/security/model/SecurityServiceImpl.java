@@ -4,8 +4,8 @@ import com.progartisan.component.common.BizException;
 import com.progartisan.component.common.Util;
 import com.progartisan.component.framework.AuthInfo;
 import com.progartisan.component.framework.Command;
-import com.progartisan.component.framework.Metadata.FunctionDef;
 import com.progartisan.component.framework.Metadata.PermissionDef;
+import com.progartisan.component.framework.Metadata.ServiceDef;
 import com.progartisan.component.framework.Service;
 import com.progartisan.component.security.AuthResult;
 import com.progartisan.component.security.TokenUtil;
@@ -99,7 +99,7 @@ public class SecurityServiceImpl implements SecurityService {
 		var userPO = (UserPO) user;
 		var metadata = this.metadataProvider.getMetadata(null);
 		var permissionMap = new HashMap<String, PermissionDef>();
-		metadata.getFunctions().forEach(func -> {
+        metadata.getServices().forEach(func -> {
 			func.getPermissions().forEach(perm -> {
 				permissionMap.put(func.getName() + "." + perm.getName(), perm);
 				// this.permissionMap.put(perm.getName(), perm);
@@ -175,9 +175,9 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     @Override
-    public List<FunctionDef> getAllFunctionDefs() {
+    public List<ServiceDef> getAllFunctionDefs() {
         var metadata = this.metadataProvider.getMetadata(null);
-        return Util.toList(metadata.getFunctions().stream().filter(x -> x.getOrder() > 0)
+        return Util.toList(metadata.getServices().stream().filter(x -> x.getOrder() > 0)
                 .sorted((x, y) -> x.getOrder() - y.getOrder()));
     }
 

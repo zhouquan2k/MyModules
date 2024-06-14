@@ -1,20 +1,17 @@
 package com.progartisan.module.security.api;
 
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.NotBlank;
-
+import com.progartisan.component.common.BizException;
+import com.progartisan.component.framework.AuthInfo;
+import com.progartisan.component.framework.Metadata.ServiceDef;
+import lombok.Data;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.progartisan.component.common.BizException;
-import com.progartisan.component.framework.AuthInfo;
-import com.progartisan.component.framework.Metadata.FunctionDef;
-
-import lombok.Data;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 @RequestMapping("/api/security")
 public interface SecurityService {
@@ -40,7 +37,7 @@ public interface SecurityService {
     void logout(HttpServletRequest request);
 
     @GetMapping("/functions")
-    List<FunctionDef> getAllFunctionDefs();
+    List<ServiceDef> getAllFunctionDefs();
 
     @GetMapping("/exception")
     void testException() throws BizException;
