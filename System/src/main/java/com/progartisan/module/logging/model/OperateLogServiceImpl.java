@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @Named
-@Service(type = Type.Mixed, value = "操作日志", name = "log", order = 4)
+@Service(type = Type.Mixed, value = "操作日志", name = "log", order = 104)
 @RequiredArgsConstructor
 
 public class OperateLogServiceImpl implements OperateLogService {

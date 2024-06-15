@@ -32,7 +32,7 @@ class UserPermissions {
 	);
 }
 
-@Service(value = "用户管理", type = Type.Command, name = "user", permissions = UserPermissions.class, order = 1)
+@Service(value = "用户管理", type = Type.Command, name = "user", permissions = UserPermissions.class, order = 101)
 @Named
 class UserServiceImpl extends CrudServiceImpl<User, UserPO, UserDO> implements UserService {
 

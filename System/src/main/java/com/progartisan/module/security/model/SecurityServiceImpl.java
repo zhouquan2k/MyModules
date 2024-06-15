@@ -36,7 +36,7 @@ class SecurityPermissions {
 			new PermissionDef(TestPermissions, "测试"));
 }
 
-@Service(type = Service.Type.Mixed, name = "security", value = "系统 - 安全", permissions = SecurityPermissions.class, order = 4)
+@Service(type = Service.Type.Mixed, name = "security", value = "系统 - 安全", permissions = SecurityPermissions.class, order = 103)
 @RequiredArgsConstructor
 @Named
 public class SecurityServiceImpl implements SecurityService {

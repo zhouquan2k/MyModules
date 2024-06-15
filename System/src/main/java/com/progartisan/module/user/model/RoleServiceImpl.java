@@ -25,7 +25,7 @@ enum RolePermissions implements EnumDescription, EnumCode {
 
 }
 
-@Service(value = "角色管理", type = Type.Mixed, name = "role", permissions = RolePermissions.class, order = 2)
+@Service(value = "角色管理", type = Type.Mixed, name = "role", permissions = RolePermissions.class, order = 102)
 @Named
 public class RoleServiceImpl extends CrudServiceImpl<Role, RolePO, RoleDO> implements RoleService {
 
