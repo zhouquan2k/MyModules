@@ -12,6 +12,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serializable;
 import java.util.List;
 
 import static com.progartisan.component.meta.Meta.BooleanEx.False;
@@ -26,7 +27,7 @@ public class RolePO extends BaseEntity<RolePO> implements DictionaryItem {
     @MetaEntity(tableName = "t_role_permission")
     @Data
     @RequiredArgsConstructor
-    public static class RolePermission {
+    public static class RolePermission implements Serializable {
         @Meta(Type.ID)
         String rolePermissionId = null;
 

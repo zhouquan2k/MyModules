@@ -28,7 +28,7 @@ public interface SecurityService {
     }
 
     @PostMapping("/login")
-    AuthInfo login(@RequestBody LoginRequest loginRequest);
+    AuthInfo login(@RequestBody LoginRequest loginRequest, HttpServletRequest request);
 
     @GetMapping("/info")
     AuthInfo getUserInfo(HttpServletRequest request);

@@ -8,7 +8,7 @@ import com.progartisan.component.framework.Metadata.PermissionDef;
 import com.progartisan.component.framework.Metadata.ServiceDef;
 import com.progartisan.component.framework.Service;
 import com.progartisan.component.security.AuthResult;
-import com.progartisan.component.security.TokenUtil;
+import com.progartisan.component.security.ITokenUtil;
 import com.progartisan.component.spi.MetadataProvider;
 import com.progartisan.module.security.api.SecurityService;
 import com.progartisan.module.user.api.Role.RoleType;
@@ -43,7 +43,7 @@ public class SecurityServiceImpl implements SecurityService {
 
     private final AuthenticationManager authenticationManager;
     protected final MetadataProvider metadataProvider;
-    private final TokenUtil tokenUtil;
+    private final ITokenUtil tokenUtil;
 	// private final Set<PermissionProvider> allPermissionProviders;
 
 	// private final ConvertUser convertUser; // TODO
@@ -51,7 +51,7 @@ public class SecurityServiceImpl implements SecurityService {
     @Command(value = "用户登录", logParam = false)
     // @AnonymousAccess
     @Override
-    public com.progartisan.component.framework.AuthInfo login(@Validated @RequestBody LoginRequest loginRequest) {
+    public com.progartisan.component.framework.AuthInfo login(@Validated @RequestBody LoginRequest loginRequest, HttpServletRequest request) {
         // 密码解密
         /*
         RSA rsa = new RSA(privateKey, null);
@@ -82,17 +82,7 @@ public class SecurityServiceImpl implements SecurityService {
 
 		this.processUserPermissions(userDetails);
 
-        String token = tokenUtil.generateToken(authInfo);
-        AuthResult authResult = new AuthResult(authInfo);
-        authResult.setToken(token);
-
-        /*
-        final JwtUser jwtUser = (JwtUser) authentication.getPrincipal();
-        // 保存在线信息
-        onlineUserService.save(jwtUser, token, request);
-        */
-
-        return authResult;
+        return tokenUtil.generateAuthResult(authInfo, request);
     }
 
 	private void processUserPermissions(UserDetails user) {
@@ -129,9 +119,7 @@ public class SecurityServiceImpl implements SecurityService {
     //@ApiOperation("获取用户信息")
     @Override
     public AuthResult getUserInfo(HttpServletRequest request) {
-        //TODO can get user info from context
-        String authToken = tokenUtil.getToken(request);
-        return tokenUtil.getAuthInfoFromToken(authToken);
+        return tokenUtil.getAuthInfoFromToken(request);
     }
 
     /*
@@ -171,6 +159,7 @@ public class SecurityServiceImpl implements SecurityService {
         /*
         onlineUserService.logout(tokenUtil.getToken(request));
         */
+        tokenUtil.invalidateToken(request);
         SecurityContextHolder.getContext().setAuthentication(null);
     }
 
