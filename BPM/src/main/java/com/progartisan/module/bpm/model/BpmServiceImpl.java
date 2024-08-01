@@ -13,16 +13,19 @@ import org.flowable.engine.HistoryService;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.TaskService;
-import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.task.api.Task;
 import org.flowable.task.api.TaskInfo;
+import org.flowable.task.api.history.HistoricTaskInstance;
+import org.flowable.task.api.history.HistoricTaskInstanceQuery;
 
 import javax.inject.Named;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Named
 @RequiredArgsConstructor
@@ -81,11 +84,32 @@ public class BpmServiceImpl implements BpmService {
     @Override
     public List<BpmProcessInstance> queryMyHistoryInstances() {
         // 查询参与者为特定用户的历史流程实例
-        List<HistoricProcessInstance> instances = historyService.createHistoricProcessInstanceQuery()
-                .involvedUser(Context.getUserId())
-                .orderByProcessInstanceStartTime().desc()
-                .listPage(0, 10);
-        return convertInstance.instancesToBpmInstances(instances);
+        var userId = Context.getUserId();
+        HistoricTaskInstanceQuery taskQuery = historyService.createHistoricTaskInstanceQuery()
+                .taskAssignee(userId);
+        List<HistoricTaskInstance> taskInstances = taskQuery.list();
+        // 获取这些任务实例的流程实例 ID
+        Set<String> processInstanceIds = taskInstances.stream()
+                .map(HistoricTaskInstance::getProcessInstanceId)
+                .collect(Collectors.toSet());
+
+
+        // 查询这些流程实例
+        if (!processInstanceIds.isEmpty()) {
+            var instances = historyService.createHistoricProcessInstanceQuery()
+                    .processInstanceIds(processInstanceIds)
+                    .orderByProcessInstanceStartTime().desc()
+                    .listPage(0, 10);
+
+            /* involvedUser 会导致一些无法解释的作为participant的情形
+            List<HistoricProcessInstance> instances = historyService.createHistoricProcessInstanceQuery()
+                    .involvedUser(Context.getUserId())
+                    .orderByProcessInstanceStartTime().desc()
+                    .listPage(0, 10);
+             */
+            return convertInstance.instancesToBpmInstances(instances);
+        }
+        return List.of();
     }
 
     @Override
