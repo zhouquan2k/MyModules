@@ -27,7 +27,7 @@ public class MiscServiceImpl implements com.progartisan.module.misc.api.MiscServ
     @Override
     public String getVersion() throws Exception {
         Resource resource = resourceLoader.getResource("classpath:version.txt");
-        return new String(resource.getInputStream().readAllBytes());
+        return (resource.exists()) ? new String(resource.getInputStream().readAllBytes()) : "";
     }
 
 

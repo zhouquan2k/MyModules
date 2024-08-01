@@ -13,10 +13,13 @@ import com.progartisan.module.user.model.domain.*;
 import org.mapstruct.factory.Mappers;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
+@DependsOn("Init")
 public class ConfigUser {
 
     @Bean
