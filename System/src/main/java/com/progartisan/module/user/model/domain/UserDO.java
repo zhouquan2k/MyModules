@@ -40,7 +40,7 @@ public class UserDO implements DO<UserPO> {
 	// 方式2:自行根据Meta用反射实现: 已在EntityHelper实现，可以作为DO的static成员，对于大部分字段都可update的情况,但是关系映射
 	// 仍需手工赋值
     @Override
-    public void update(Object obj) {
+	public void update(UserPO obj) {
 		entityHelper.update(this.state, obj);
 		/* 不对Roles进行变更
 		var user = (User) obj;

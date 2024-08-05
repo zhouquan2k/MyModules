@@ -33,7 +33,7 @@ public class RoleDO implements DO<RolePO> {
     }
 
     @Override
-    public void update(Object obj) {
+    public void update(RolePO obj) {
 		entityHelper.update(this.state, obj);
     }
 
