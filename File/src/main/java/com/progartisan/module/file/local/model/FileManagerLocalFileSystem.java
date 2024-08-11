@@ -73,9 +73,13 @@ public class FileManagerLocalFileSystem implements FileManagerSpi {
         try (BufferedInputStream inStream = new BufferedInputStream(Files.newInputStream(filePath));
                 BufferedOutputStream outStream = new BufferedOutputStream(response.getOutputStream())) {
 
-            response.setHeader("Content-Disposition",
-                    "attachment;filename=" + URLEncoder.encode(file.getFileName(), "UTF-8"));
-            response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+            if (file.getMimeType().startsWith("image/")) {
+                response.setContentType(file.getMimeType());
+            } else {
+                response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+                response.setHeader("Content-Disposition",
+                        "attachment;filename=" + URLEncoder.encode(file.getFileName(), "UTF-8"));
+            }
 
             byte[] buffer = new byte[10240]; // 缓冲区大小可根据需要调整
             int length;
