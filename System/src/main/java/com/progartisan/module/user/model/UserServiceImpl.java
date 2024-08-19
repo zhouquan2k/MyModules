@@ -77,11 +77,12 @@ class UserServiceImpl extends CrudServiceImpl<User, UserPO, UserDO> implements U
 
 	@Command(permission = UserPermissions.UserWrite)
 	@Override
-	public void update(String id, User dto) {
+	public User update(String id, User dto) {
 		UserDO user = repository.get(id).orElseThrow();
 		// user.enrichWithRoles(this::enrichWithRole);
 		user.update(convert.dtoToPo(dto));
 		UserPO po = (UserPO) repository.save(user);
+		return null;
 		// 不会影响BPM同步，TODO 考虑改成RoleUpdated事件
 		// Context.publishEvent(new EntityUpdatedEvent(convert.poToDto(po)));
 	}
