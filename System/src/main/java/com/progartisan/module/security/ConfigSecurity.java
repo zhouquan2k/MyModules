@@ -12,7 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 public class ConfigSecurity {
 
-	@Value("${app.security.testPassword}")
+	@Value("${app.security.testPassword:none}")
 	String testPassword;
 
 	/**
