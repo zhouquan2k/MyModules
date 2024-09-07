@@ -4,7 +4,6 @@ import com.progartisan.component.data.BaseEntity;
 import com.progartisan.component.meta.Meta;
 import com.progartisan.component.meta.Meta.Type;
 import com.progartisan.component.meta.MetaEntity;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -21,7 +20,7 @@ public class FilePO extends BaseEntity<FilePO> {
     String path;
     @Meta(Type.Integer)
     Long size;
-    @Meta(Type.String)
+    @Meta(value = Type.String, length = 100)
     String mimeType;
     @Meta(Type.String)
     String accessUrl;
