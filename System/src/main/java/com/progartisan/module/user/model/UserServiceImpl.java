@@ -2,6 +2,7 @@ package com.progartisan.module.user.model;
 
 import com.progartisan.component.common.BizException;
 import com.progartisan.component.common.Util;
+import com.progartisan.component.data.impl.DictionaryProvider;
 import com.progartisan.component.framework.*;
 import com.progartisan.component.framework.Service.Type;
 import com.progartisan.component.framework.helper.CrudServiceImpl;
@@ -40,6 +41,8 @@ class UserServiceImpl extends CrudServiceImpl<User, UserPO, UserDO> implements U
 	// can use mapper here in a command service?
 	private final UserMapper userMapper;
 	private final RoleMapper roleMapper;
+	private final DictionaryProvider<UserPO> userDictionaryProvider;
+
 
 	@Override
 	public User getOne(String id) {
@@ -47,11 +50,12 @@ class UserServiceImpl extends CrudServiceImpl<User, UserPO, UserDO> implements U
 	}
 
 	public UserServiceImpl(Repository<UserDO> repository, ConvertUser convert,
-						   UserMapper userMapper, RoleMapper roleMapper) {
+						   UserMapper userMapper, RoleMapper roleMapper, DictionaryProvider<UserPO> userDictionaryProvider) {
 		super(repository, convert);
         this.convert = convert;
 		this.userMapper = userMapper;
 		this.roleMapper = roleMapper;
+		this.userDictionaryProvider = userDictionaryProvider;
     }
 
     @Override
@@ -71,6 +75,7 @@ class UserServiceImpl extends CrudServiceImpl<User, UserPO, UserDO> implements U
 		_do.enrichWithRoles(this::enrichWithRole);
 		po = (UserPO) repository.save(_do);
 		User ret = convert.poToDto(po);
+		this.userDictionaryProvider.refresh();
 		Context.publishEvent(new EntityCreatedEvent(ret));
 		return ret;
 	}
@@ -82,6 +87,7 @@ class UserServiceImpl extends CrudServiceImpl<User, UserPO, UserDO> implements U
 		// user.enrichWithRoles(this::enrichWithRole);
 		user.update(convert.dtoToPo(dto));
 		UserPO po = (UserPO) repository.save(user);
+		this.userDictionaryProvider.refresh();
 		return null;
 		// 不会影响BPM同步，TODO 考虑改成RoleUpdated事件
 		// Context.publishEvent(new EntityUpdatedEvent(convert.poToDto(po)));

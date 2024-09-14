@@ -3,6 +3,7 @@ package com.progartisan.module.bpm.model;
 import com.progartisan.component.common.Util;
 import com.progartisan.component.framework.EntityCreatedEvent;
 import com.progartisan.component.framework.EntityUpdatedEvent;
+import com.progartisan.module.bpm.api.UserGroupService;
 import com.progartisan.module.user.api.Role;
 import com.progartisan.module.user.api.User.UserRole;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +20,9 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class UserSync {
 	private final IdentityService identityService;
+	private final UserGroupService userGroupService;
 
-	private String roleToGroup(UserRole role) {
+	private String roleToGroupId(UserRole role) {
 		if (role.getRole().getRoleType() == Role.RoleType.GroupPublic) {
 			Util.check(Util.isNotEmpty(role.getOrgId()) && !Util.equals(role.getRoleId(), "0"));
 			return String.format("%s-%s", role.getOrgId(), role.getRoleId());
@@ -29,10 +31,27 @@ public class UserSync {
 		}
 	}
 
+	private UserGroupService.Group roleToGroup(UserRole role) {
+		if (role.getRole().getRoleType() == Role.RoleType.GroupPublic && role.getRole().getWorkflowGroup()) {
+			return UserGroupService.Group.builder()
+					.groupId(roleToGroupId(role))
+					.groupName(role.getRoleName())
+					.orgId(role.getOrgId())
+					.roleId(role.getRoleId())
+					.build();
+		} else {
+			return null;
+		}
+	}
+
+
 	private void syncRoles(String userId, Set<UserRole> roles) {
-		if (roles == null) roles = Set.of();
-		var targetRoleMap = Util.toMap(roles.stream().filter(role -> role.getRole().getWorkflowGroup() != null && role.getRole().getWorkflowGroup()),
-				this::roleToGroup);
+		if (roles == null)
+			roles = Set.of();
+		var targetRoleMap = Util.toMap(
+				roles.stream()
+						.filter(role -> role.getRole().getWorkflowGroup() != null && role.getRole().getWorkflowGroup()),
+				this::roleToGroupId);
 
 		var groups = identityService.createGroupQuery().groupMember(userId).list();
 
@@ -46,16 +65,20 @@ public class UserSync {
 			} else {
 				return Stream.of(groupId);
 			}
-		}).collect(Collectors.toSet()) ;
+		}).collect(Collectors.toSet());
 
-		var rolesToAdd = roles.stream().filter(role -> role.getRole().getWorkflowGroup() != null && role.getRole().getWorkflowGroup()
-				&& !alreadyExistSet.contains(roleToGroup(role)));
+		var rolesToAdd = roles.stream()
+				.filter(role -> role.getRole().getWorkflowGroup() != null && role.getRole().getWorkflowGroup()
+						&& !alreadyExistSet.contains(roleToGroupId(role)));
 		rolesToAdd.forEach(role -> {
 			// 设置分组
-			var groupId = roleToGroup(role);
-			if (groupId != null) {
-				log.debug(String.format("user %s join to group: %s", userId, groupId));
-				identityService.createMembership(userId, groupId);
+			var group = roleToGroup(role);
+			if (group != null) {
+				if (!userGroupService.groupExists(group.getGroupId())) {
+					userGroupService.createGroups(group);
+				}
+				log.debug(String.format("user %s join to group: %s", userId, group.getGroupId()));
+				identityService.createMembership(userId, group.getGroupId());
 			}
 		});
 	}
@@ -79,7 +102,6 @@ public class UserSync {
 	@EventListener
 	public void handleEntityCreatedEvent(EntityCreatedEvent event) {
 		log.info("> handle EntityCreatedEvent");
-		// TODO
 		if (event.getEntity() instanceof com.progartisan.module.user.api.User) {
 			log.info("> user created");
 			createUser((com.progartisan.module.user.api.User) event.getEntity());
@@ -89,7 +111,6 @@ public class UserSync {
 	@EventListener
 	public void handleEntityUpdatedEvent(EntityUpdatedEvent event) {
 		log.info("> handle EntityUpdatedEvent");
-		// TODO
 		if (event.getEntity() instanceof com.progartisan.module.user.api.User) {
 			log.info("> user updated");
 			var user = (com.progartisan.module.user.api.User) event.getEntity();

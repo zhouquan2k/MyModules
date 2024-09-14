@@ -3,6 +3,7 @@ package com.progartisan.module.bpm.model;
 import com.progartisan.component.common.Util;
 import com.progartisan.component.framework.Context;
 import com.progartisan.module.bpm.api.BpmEvent;
+import com.progartisan.module.bpm.api.UserGroupService;
 import lombok.RequiredArgsConstructor;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEvent;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEventType;
@@ -22,6 +23,7 @@ import javax.annotation.PostConstruct;
 public class ConfigBpm {
 
 	private final RuntimeService runtimeService;
+	private final UserGroupService userGroupService;
 
 	@PostConstruct
 	public void init() {
@@ -72,7 +74,7 @@ public class ConfigBpm {
 
 	@Bean
 	public UserSync userSync(IdentityService identityService) {
-		return new UserSync(identityService);
+		return new UserSync(identityService, userGroupService);
 	}
 
 }
