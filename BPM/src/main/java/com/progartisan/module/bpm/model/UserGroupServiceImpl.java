@@ -28,4 +28,9 @@ public class UserGroupServiceImpl implements UserGroupService {
 			}
 		});
 	}
+
+	@Override
+	public boolean groupExists(String groupId) {
+		return false;
+	}
 }
