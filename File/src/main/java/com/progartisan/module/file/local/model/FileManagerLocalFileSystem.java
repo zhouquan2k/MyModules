@@ -34,6 +34,7 @@ public class FileManagerLocalFileSystem implements FileManagerSpi {
         return uploadPath.resolve(String.format("f%s_%s", file.getFileId(), file.getFileName()));
 
     }
+
     @Override
     public File upload(MultipartFile file, String path) {
         try {
@@ -47,7 +48,7 @@ public class FileManagerLocalFileSystem implements FileManagerSpi {
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
-            
+
             FilePO filePO = new FilePO();
             filePO.setFileName(file.getOriginalFilename());
             filePO.setPath(path);
@@ -73,7 +74,10 @@ public class FileManagerLocalFileSystem implements FileManagerSpi {
         try (BufferedInputStream inStream = new BufferedInputStream(Files.newInputStream(filePath));
                 BufferedOutputStream outStream = new BufferedOutputStream(response.getOutputStream())) {
 
+            // TODO 设置contentType放到service？
             if (file.getMimeType().startsWith("image/")) {
+                response.setContentType(file.getMimeType());
+            } else if (file.getMimeType().startsWith("application/pdf")) {
                 response.setContentType(file.getMimeType());
             } else {
                 response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
