@@ -50,7 +50,7 @@ public class UserSync {
 			roles = Set.of();
 		var targetRoleMap = Util.toMap(
 				roles.stream()
-						.filter(role -> role.getRole().getWorkflowGroup() != null && role.getRole().getWorkflowGroup()),
+						.filter(role -> role.getRole()!=null && role.getRole().getWorkflowGroup() != null && role.getRole().getWorkflowGroup()),
 				this::roleToGroupId);
 
 		var groups = identityService.createGroupQuery().groupMember(userId).list();
@@ -68,7 +68,7 @@ public class UserSync {
 		}).collect(Collectors.toSet());
 
 		var rolesToAdd = roles.stream()
-				.filter(role -> role.getRole().getWorkflowGroup() != null && role.getRole().getWorkflowGroup()
+				.filter(role -> role.getRole() != null && role.getRole().getWorkflowGroup() != null && role.getRole().getWorkflowGroup()
 						&& !alreadyExistSet.contains(roleToGroupId(role)));
 		rolesToAdd.forEach(role -> {
 			// 设置分组
